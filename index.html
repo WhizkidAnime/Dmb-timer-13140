@@ -98,7 +98,13 @@ main{flex:1;min-height:0;position:relative}
 .day{margin-top:14px;background:var(--soft);border-radius:14px;padding:14px;flex:1;min-height:180px;display:flex;flex-direction:column}
 .dayhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .dayhead strong{font-weight:600}
-.dtag{font-size:13px;margin-top:4px;min-height:1.2em}
+.dayrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px;min-height:32px}
+.dtag{font-size:13px;min-height:1.2em;flex:1;min-width:0}
+.todaybtn{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500;cursor:pointer;
+  opacity:0;transform:translate3d(8px,0,0);pointer-events:none;transition:opacity .25s,transform .35s var(--ease),border-color .2s}
+.todaybtn.show{opacity:1;transform:none;pointer-events:auto}
+.todaybtn:active{transform:scale(.95)}
+.todaybtn i{width:8px;height:8px;border-radius:50%;background:var(--fg);display:block}
 .nav{display:flex;gap:4px;flex-shrink:0}
 .nav button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:16px;transition:transform .15s}
 .nav button:active{transform:scale(.9)}
@@ -204,6 +210,11 @@ textarea,input[type=text],input[type=date]{font-size:16px}
 input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;text-align:left}
 .backup{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
 .backup p{margin:0 0 10px;font-size:14px;color:var(--mute)}
+.sheet label.opt{display:flex;align-items:center;gap:10px;margin:12px 0 0;color:var(--fg);font-size:15px}
+.sheet label.opt input{width:20px;height:20px;accent-color:var(--fg);flex:none;margin:0}
+input[type=time]{-webkit-appearance:none;appearance:none;min-height:44px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:16px;width:100%;text-align:left}
+.notif-st{margin-top:12px;line-height:1.5}
+textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -258,7 +269,10 @@ input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;text-al
             <div><strong id="dTitle"></strong><div class="muted" id="dSub" style="font-size:14px"></div></div>
             <div class="nav"><button id="prev" aria-label="Предыдущий день">‹</button><button id="next" aria-label="Следующий день">›</button></div>
           </div>
+          <div class="dayrow">
           <div class="dtag" id="dTag"></div>
+          <button class="todaybtn" id="todayBtn" tabindex="-1" aria-hidden="true"><i></i>Сегодня</button>
+        </div>
         </div>
         <textarea id="note" placeholder="Заметка к этому дню"></textarea>
       </div>
@@ -308,6 +322,7 @@ input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;text-al
     <button class="btn" id="datesSave">Сохранить</button>
     <button class="btn ghost" data-close>Отмена</button>
   </div>
+  <button class="btn ghost wide" id="notifBtn" style="margin-top:18px">Уведомления</button>
   <div class="backup">
     <p>Данные хранятся только на этом устройстве. Сохрани копию, чтобы не потерять заметки и события.</p>
     <div class="drow" style="margin-top:0">
@@ -350,12 +365,35 @@ input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;text-al
   <button class="danger" id="evDel" hidden>Удалить событие</button>
 </dialog>
 
+<!-- Уведомления -->
+<dialog class="sheet" id="dlgNotif" aria-labelledby="hNotif">
+  <div class="grab"></div>
+  <h3 id="hNotif" tabindex="-1">Уведомления</h3>
+  <div class="notif-st" id="nStatus"></div>
+  <div class="drow"><button class="btn" id="nOn" hidden>Включить уведомления</button></div>
+  <div id="nOpts" hidden>
+    <label for="nTime">Время уведомления</label>
+    <input type="time" id="nTime">
+    <label class="opt"><input type="checkbox" id="nBefore">Напоминать накануне</label>
+    <label class="opt"><input type="checkbox" id="nDaily">Каждый день: сколько осталось</label>
+    <div class="drow">
+      <button class="btn" id="nCopy">Скопировать настройки</button>
+      <button class="btn ghost" id="nTest">Тестовое уведомление</button>
+    </div>
+    <p class="muted" style="font-size:14px;margin:14px 0 0;line-height:1.5">Вставь скопированный текст в секрет DMB_CONFIG на GitHub. После смены дат, событий или этих настроек скопируй их заново. Подробнее в README.</p>
+    <button class="danger" id="nOff">Отключить уведомления</button>
+  </div>
+  <textarea class="cfg" id="nTa" readonly hidden></textarea>
+  <div class="err" id="nErr"></div>
+  <div class="drow"><button class="btn ghost" data-close>Закрыть</button></div>
+</dialog>
+
 <div class="toast" id="toast" role="status"></div>
 
 <script>
 (function(){
 const DAY=864e5, KEY='dmb:v1';
-const DEF={start:'2026-04-24',end:'2027-04-23',events:[],notes:{},unit:'days',mode:'left',theme:null,filter:'all',tab:'timer'};
+const DEF={start:'2026-04-24',end:'2027-04-23',events:[],notes:{},unit:'days',mode:'left',theme:null,filter:'all',tab:'timer',notif:{time:'09:00',before:false,daily:false}};
 const clone=o=>JSON.parse(JSON.stringify(o));
 function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(clone(DEF),JSON.parse(r));}catch(e){}return clone(DEF);}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -522,7 +560,7 @@ function tick(){
   $('fill').style.transform='scaleX('+(pct/100)+')';
   $('served').textContent='Прошло '+dn(Math.floor(done/DAY));
   $('leftd').textContent='Осталось '+dn(Math.ceil(left/DAY));
-  const k=K(now);if(k!==lastDayKey){if(lastDayKey){buildGrid();renderTL(false);}lastDayKey=k;renderNext();}
+  const k=K(now);if(k!==lastDayKey){if(lastDayKey){buildGrid();renderTL(false);updateTodayBtn();}lastDayKey=k;renderNext();}
 }
 
 function runIntro(){
@@ -579,6 +617,11 @@ function selectDay(i){
   const c=document.querySelector('.c[data-i="'+sel+'"]');if(c)c.classList.add('sel');
   renderDay(Math.sign(sel-prev));
 }
+function todayIdx(){return Math.min(Math.max(dayDiff(start,new Date()),0),totalDays-1);}
+function updateTodayBtn(){
+  const show=sel!==todayIdx(),b=$('todayBtn');
+  b.classList.toggle('show',show);b.tabIndex=show?0:-1;b.setAttribute('aria-hidden',show?'false':'true');
+}
 function renderDay(dir){
   const d=addD(start,sel),diff=dayDiff(new Date(),d);
   $('dTitle').textContent='День '+(sel+1)+' из '+totalDays;
@@ -586,7 +629,9 @@ function renderDay(dir){
   $('dTag').textContent=MSL.filter(m=>K(m.date)===K(d)).map(m=>m.t).join(', ');
   $('note').value=S.notes[K(d)]||'';
   if(dir)animIn($('dayIn'),{transform:'translate3d('+(dir*16)+'px,0,0)'});
+  updateTodayBtn();
 }
+$('todayBtn').onclick=()=>selectDay(todayIdx());
 $('prev').onclick=()=>selectDay(sel-1);
 $('next').onclick=()=>selectDay(sel+1);
 let nt;
@@ -722,6 +767,81 @@ $('importFile').onchange=async e=>{
     S=Object.assign(clone(DEF),st);save();applyTheme();closeSheet($('dlgDates'));setup();showTab(S.tab,false);toast('Данные восстановлены');
   }catch(err){$('datesErr').textContent='Файл не похож на копию ДМБ-таймера';}
 };
+
+/* ---------- Уведомления (Web Push) ---------- */
+const VAPID_PUBLIC='BIA1L-ti_Sl1bUbnTwG4_R8TV3wbvnCKjxWsdZTG7uGKRpqHSf1AD0R-BrH-JVqrRQJfgsTvSqucBd9bi8728KA';
+const NO=()=>Object.assign({time:'09:00',before:false,daily:false},S.notif);
+const standalone=()=>navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+function b64u(str){const pad='='.repeat((4-str.length%4)%4),b=(str+pad).replace(/-/g,'+').replace(/_/g,'/'),r=atob(b);return Uint8Array.from(r,c=>c.charCodeAt(0));}
+function getReg(){return Promise.race([navigator.serviceWorker.ready,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Service worker не запущен. Открой приложение по https и подожди пару секунд.')),4000))]);}
+async function getSub(){try{const reg=await getReg();return await reg.pushManager.getSubscription();}catch(e){return null;}}
+
+let cfgTxt='';
+async function buildConfig(){
+  const sub=await getSub();if(!sub)return '';
+  const o=NO(),today=new Date(),items=[];
+  const short=t=>{t=(t||'').trim();return t.length>120?t.slice(0,117).replace(/\s+\S*$/,'')+'…':t;};
+  MSL.forEach(m=>{
+    const diff=dayDiff(today,m.date);
+    if(diff>=0)items.push({d:K(m.date),t:m.t,b:m.kind==='mine'?'Твоё событие':short(m.desc)});
+    if(o.before&&diff>=1)items.push({d:K(addD(m.date,-1)),t:'Завтра: '+m.t,b:''});
+  });
+  return JSON.stringify({v:1,tz:Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Moscow',origin:location.origin,
+    time:o.time,daily:!!o.daily,start:S.start,end:S.end,sub:sub.toJSON(),items});
+}
+async function refreshCfg(){cfgTxt=await buildConfig();}
+
+async function renderNotif(){
+  $('nErr').textContent='';$('nTa').hidden=true;
+  const o=NO();$('nTime').value=o.time;$('nBefore').checked=!!o.before;$('nDaily').checked=!!o.daily;
+  let msg,sub=null,canEnable=false;
+  if(!pushOk()||!standalone()){
+    msg='Уведомления работают только в приложении, добавленном на экран «Домой» (iOS 16.4 и новее). Открой его оттуда, а не из Safari.';
+  }else if(Notification.permission==='denied'){
+    msg='Уведомления запрещены. Разреши их: Настройки iPhone → Уведомления → ДМБ.';
+  }else{
+    sub=await getSub();
+    if(sub)msg='Уведомления включены. Осталось передать настройки в GitHub, иначе сообщения приходить не будут.';
+    else{msg='Уведомления выключены.';canEnable=true;}
+  }
+  $('nStatus').textContent=msg;$('nOn').hidden=!canEnable;$('nOpts').hidden=!sub;
+  if(sub)await refreshCfg();
+}
+$('notifBtn').onclick=()=>{openSheet($('dlgNotif'));renderNotif();};
+
+$('nOn').onclick=async()=>{
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){await renderNotif();return;}
+    const reg=await getReg();
+    if(!(await reg.pushManager.getSubscription()))await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUBLIC)});
+    toast('Уведомления включены');
+  }catch(e){$('nErr').textContent='Не получилось включить: '+((e&&e.message)||e);}
+  await renderNotif();
+};
+$('nOff').onclick=async()=>{
+  try{const s=await getSub();if(s)await s.unsubscribe();cfgTxt='';toast('Уведомления отключены');}
+  catch(e){$('nErr').textContent='Не получилось отключить: '+((e&&e.message)||e);}
+  await renderNotif();
+};
+$('nTest').onclick=async()=>{
+  try{const reg=await getReg();await reg.showNotification('ДМБ',{body:'Тест: так будут выглядеть уведомления',icon:'icon-192.png',tag:'dmb-test'});}
+  catch(e){$('nErr').textContent='Не получилось показать: '+((e&&e.message)||e);}
+};
+$('nCopy').onclick=()=>{
+  const txt=cfgTxt;
+  if(!txt){$('nErr').textContent='Настройки ещё не готовы. Подожди секунду и нажми снова.';return;}
+  const manual=()=>{const ta=$('nTa');ta.value=txt;ta.hidden=false;ta.focus();ta.select();
+    $('nErr').textContent='Не удалось скопировать автоматически. Выдели текст ниже, скопируй и вставь в GitHub.';};
+  if(!navigator.clipboard){manual();return;}
+  navigator.clipboard.writeText(txt).then(()=>toast('Настройки скопированы'),manual);
+};
+function saveOpts(){
+  S.notif={time:$('nTime').value||'09:00',before:$('nBefore').checked,daily:$('nDaily').checked};
+  save();refreshCfg();
+}
+['nTime','nBefore','nDaily'].forEach(id=>$(id).addEventListener('change',saveOpts));
 
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400);}
 
