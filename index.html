@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ДМБ</title>
+<meta name="description" content="Таймер до дембеля: сколько осталось, армейские даты, календарь службы и заметки">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ДМБ">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff; --fg:#000000; --mute:#707070; --line:#e4e4e4; --cell:#ebebeb; --soft:#f4f4f4; --scrim:rgba(0,0,0,.4);
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --text:"Onest",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#000;--fg:#fff;--mute:#8c8c8c;--line:#262626;--cell:#1d1d1d;--soft:#111;--scrim:rgba(0,0,0,.65);color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#000;--fg:#fff;--mute:#8c8c8c;--line:#262626;--cell:#1d1d1d;--soft:#111;--scrim:rgba(0,0,0,.65);color-scheme:dark}
+html,body{height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--text);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.muted{color:var(--mute)}
+
+.app{height:100%;min-height:500px;max-width:560px;margin:0 auto;display:flex;flex-direction:column}
+header{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px 8px}
+.mark{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.02em}
+.tools{display:flex;gap:4px}
+.tb{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;cursor:pointer;transition:border-color .2s,transform .15s}
+.tb:hover{border-color:var(--fg)}
+.tb:active,.btn:active{transform:scale(.96)}
+
+main{flex:1;min-height:0;position:relative}
+.panel{position:absolute;inset:0;display:flex;flex-direction:column;padding:8px 20px 12px;overflow-y:auto;overscroll-behavior:contain}
+.panel[hidden]{display:none}
+.ptitle{font-size:22px;font-weight:600;margin:4px 0 14px;flex:none}
+
+/* Таймер */
+#p-timer{gap:14px}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.big{font-family:var(--display);font-weight:700;line-height:.9;letter-spacing:-.03em;
+  font-size:min(9rem, 19vh, calc(min(92vw,520px) / (var(--len,3) * .86)));
+  background:none;border:0;padding:0;cursor:pointer;display:block;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cap{font-size:19px;font-weight:500;margin-top:12px}
+.clock{font-size:19px;color:var(--mute);font-variant-numeric:tabular-nums;min-height:1.45em}
+
+.seg{position:relative;display:flex;width:100%;border:1px solid var(--line);border-radius:999px;padding:3px;flex:none}
+.seg .pill{position:absolute;top:3px;bottom:3px;left:0;width:0;border-radius:999px;background:var(--fg);transition:transform .38s var(--ease),width .38s var(--ease)}
+.seg button{position:relative;z-index:1;flex:1 1 0;min-width:0;background:none;border:0;border-radius:999px;padding:7px 2px;font-size:14px;cursor:pointer;color:var(--mute);transition:color .3s;white-space:nowrap}
+.seg button[aria-pressed="true"]{color:var(--bg)}
+@media (max-width:380px){.seg button{font-size:13px}}
+
+.nextcard{flex:none;display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;background:var(--soft);border:0;border-radius:14px;padding:12px 16px;cursor:pointer}
+.nextcard small{display:block;color:var(--mute);font-size:13px}
+.nextcard strong{font-weight:600}
+.nextcard .r{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:14px}
+
+.prog{flex:none}
+.pct{font-family:var(--display);font-weight:500;font-size:22px;font-variant-numeric:tabular-nums;margin-bottom:10px;letter-spacing:-.02em}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--fg);transform:scaleX(0);transform-origin:left center;transition:transform 1.2s var(--ease)}
+.prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:8px;font-size:14px}
+
+/* Календарь */
+.grid{display:grid;grid-template-columns:2.4rem repeat(31,1fr);gap:2px;align-items:center;flex:none}
+.ml{font-size:11px;color:var(--mute)}
+.c{aspect-ratio:1;border:0;padding:0;border-radius:2px;background:var(--cell);cursor:pointer;position:relative;transition:transform .25s var(--ease)}
+.c.x{background:none;cursor:default}
+.c.on{background:var(--fg)}
+.c.today{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--fg)}
+.c.ms:not(.on):not(.today){box-shadow:inset 0 0 0 1px var(--mute)}
+.c.sel{transform:scale(1.45);z-index:2;outline:1.5px solid var(--fg);outline-offset:1px}
+.c.n::after{content:"";position:absolute;inset:32%;border-radius:50%;background:var(--bg)}
+.c.n:not(.on)::after{background:var(--fg)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--mute);margin-top:10px;flex-wrap:wrap;flex:none}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend b{width:10px;height:10px;border-radius:2px;display:inline-block;background:var(--cell)}
+.legend b.on{background:var(--fg)}
+.legend b.t{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--fg)}
+.legend b.m{box-shadow:inset 0 0 0 1px var(--mute)}
+.day{margin-top:14px;background:var(--soft);border-radius:14px;padding:14px;flex:1;min-height:180px;display:flex;flex-direction:column}
+.dayhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dayhead strong{font-weight:600}
+.dtag{font-size:13px;margin-top:4px;min-height:1.2em}
+.nav{display:flex;gap:4px;flex-shrink:0}
+.nav button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:16px;transition:transform .15s}
+.nav button:active{transform:scale(.9)}
+textarea{width:100%;flex:1;min-height:70px;margin-top:10px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;resize:none;font-size:15px}
+
+/* События */
+#p-events{overflow:hidden}
+.chips{display:flex;gap:6px;overflow-x:auto;flex:none;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:none;border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer;transition:background-color .25s,color .25s,border-color .25s}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.pastbtn{flex:none;align-self:flex-start;background:none;border:0;padding:8px 0 4px;color:var(--mute);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:0 -20px;padding:0 20px}
+ol.tl{list-style:none;margin:0;padding:0}
+.tl li{border-top:1px solid var(--line)}
+.tl li:last-child{border-bottom:1px solid var(--line)}
+.tl li.in{animation:rise .38s var(--ease) both}
+.tl button.row{display:grid;grid-template-columns:1fr auto;gap:2px 12px;width:100%;text-align:left;background:none;border:0;padding:11px 0;cursor:pointer}
+.tl .t{font-weight:500}
+.tl .d{font-size:13px;color:var(--mute);grid-column:1}
+.tl .s{grid-row:1/span 2;grid-column:2;align-self:center;font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+.tl li.past .t,.tl li.past .s{color:var(--mute)}
+.tl li.next .s{font-weight:600}
+.tl li.flash{animation:flash 1.4s var(--ease)}
+.empty{color:var(--mute);font-size:15px;padding:16px 0;line-height:1.5}
+
+.btn{border:0;background:var(--fg);color:var(--bg);border-radius:12px;padding:11px 16px;font-weight:500;cursor:pointer;font-size:15px;transition:transform .15s}
+.btn.ghost{background:none;color:var(--fg);border:1px solid var(--line)}
+.btn.wide{width:100%;flex:none;margin-top:12px}
+input[type=text],input[type=date]{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:15px;width:100%;min-width:0}
+
+/* Заметки */
+.notes{list-style:none;margin:0;padding:0}
+.notes li{border-top:1px solid var(--line)}
+.notes li:last-child{border-bottom:1px solid var(--line)}
+.notes button{display:block;width:100%;text-align:left;background:none;border:0;padding:12px 0;cursor:pointer}
+.notes small{display:block;color:var(--mute);font-size:13px}
+.notes span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+
+/* Нижнее меню */
+nav.tabs{flex:none;position:relative;display:flex;border-top:1px solid var(--line);background:var(--bg)}
+nav.tabs .ind{position:absolute;top:-1px;left:0;height:2px;width:25%;background:var(--fg);transition:transform .38s var(--ease)}
+nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:9px 0 8px;font-size:12px;color:var(--mute);cursor:pointer;transition:color .25s}
+nav.tabs button[aria-selected="true"]{color:var(--fg)}
+nav.tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* Листы */
+dialog.sheet{border:0;padding:24px 22px calc(24px + env(safe-area-inset-bottom,0px));background:var(--bg);color:var(--fg);
+  width:100%;max-width:480px;margin:auto auto 0;border-radius:22px 22px 0 0;max-height:88vh;overflow:auto;box-shadow:0 -1px 0 var(--line);will-change:transform}
+dialog.sheet::backdrop{background:var(--scrim)}
+dialog.sheet[open]{animation:sheetUp .42s var(--ease)}
+dialog.sheet[open]::backdrop{animation:fadeIn .42s ease}
+dialog.sheet.closing{animation:sheetDown .26s ease-in forwards}
+dialog.sheet.closing::backdrop{animation:fadeOut .26s ease-in forwards}
+@media (min-width:640px){
+  dialog.sheet{margin:auto;border-radius:22px;box-shadow:0 0 0 1px var(--line)}
+  dialog.sheet[open]{animation:popIn .36s var(--ease)}
+  dialog.sheet.closing{animation:popOut .22s ease-in forwards}
+}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:-10px auto 16px}
+@media (min-width:640px){.grab{display:none}}
+.sheet h3{font-size:20px;font-weight:600;margin:0;outline:none}
+.sheet label{display:block;font-size:14px;color:var(--mute);margin:16px 0 6px}
+.sheet .meta{color:var(--mute);font-size:14px;margin-top:4px}
+.sheet .count{font-family:var(--display);font-weight:700;font-size:44px;letter-spacing:-.03em;margin:20px 0 4px;line-height:1}
+.sheet .desc{margin-top:16px;line-height:1.55}
+.sheet .origin{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);line-height:1.55}
+.sheet .olab{font-size:13px;color:var(--mute);margin-bottom:4px}
+.drow{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+.danger{background:none;border:0;padding:0;margin-top:20px;color:var(--mute);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:14px}
+.danger.armed{color:var(--fg);font-weight:600}
+.err{font-size:13px;margin-top:10px;min-height:1.2em}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px) scale(.96);opacity:0;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;transition:opacity .3s,transform .38s var(--ease);pointer-events:none;max-width:90vw;text-align:center;z-index:10}
+.toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+
+@keyframes sheetUp{from{transform:translate3d(0,100%,0)}to{transform:none}}
+@keyframes sheetDown{from{transform:none}to{transform:translate3d(0,100%,0)}}
+@keyframes popIn{from{opacity:0;transform:translate3d(0,18px,0) scale(.96)}to{opacity:1;transform:none}}
+@keyframes popOut{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,10px,0) scale(.97)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:none}}
+@keyframes flash{0%{background:var(--soft)}100%{background:transparent}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:1ms!important;animation-delay:0ms!important;transition-duration:1ms!important}
+}
+/* iOS и веб-приложение */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{overscroll-behavior:none}
+button,.chip,.c,nav.tabs button{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+textarea,input[type=text],input[type=date]{font-size:16px}
+input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;text-align:left}
+.backup{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.backup p{margin:0 0 10px;font-size:14px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="mark">ДМБ</div>
+    <div class="tools">
+      <button class="tb" id="shareBtn">Поделиться</button>
+      <button class="tb" id="themeBtn">Тема</button>
+      <button class="tb" id="setBtn">Даты</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Таймер -->
+    <div class="panel" id="p-timer" role="tabpanel">
+      <div class="hero">
+        <button class="big" id="big" title="Нажми, чтобы переключить «осталось» и «прошло»"></button>
+        <div class="cap" id="cap"></div>
+        <div class="clock" id="clock"></div>
+      </div>
+      <div class="seg" id="seg" role="group" aria-label="Единицы">
+        <span class="pill" id="pill"></span>
+        <button data-u="days">Дни</button>
+        <button data-u="weeks">Недели</button>
+        <button data-u="months">Месяцы</button>
+        <button data-u="hours">Часы</button>
+        <button data-u="pct">Проценты</button>
+      </div>
+      <button class="nextcard" id="nextCard" hidden></button>
+      <div class="prog">
+        <div class="pct" id="pct"></div>
+        <div class="bar"><i id="fill"></i></div>
+        <div class="prow"><span id="sd"></span><span id="ed"></span></div>
+        <div class="prow muted"><span id="served"></span><span id="leftd"></span></div>
+      </div>
+    </div>
+
+    <!-- Календарь -->
+    <div class="panel" id="p-cal" role="tabpanel" hidden>
+      <div class="ptitle">Вся служба по дням</div>
+      <div class="grid" id="grid"></div>
+      <div class="legend">
+        <span><b class="on"></b>Позади</span>
+        <span><b class="t"></b>Сегодня</span>
+        <span><b class="m"></b>Событие</span>
+        <span><b></b>Впереди</span>
+      </div>
+      <div class="day" id="day">
+        <div id="dayIn">
+          <div class="dayhead">
+            <div><strong id="dTitle"></strong><div class="muted" id="dSub" style="font-size:14px"></div></div>
+            <div class="nav"><button id="prev" aria-label="Предыдущий день">‹</button><button id="next" aria-label="Следующий день">›</button></div>
+          </div>
+          <div class="dtag" id="dTag"></div>
+        </div>
+        <textarea id="note" placeholder="Заметка к этому дню"></textarea>
+      </div>
+    </div>
+
+    <!-- События -->
+    <div class="panel" id="p-events" role="tabpanel" hidden>
+      <div class="ptitle">События</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-f="all">Все</button>
+        <button class="chip" data-f="trad">Армейские</button>
+        <button class="chip" data-f="month">Месяцы</button>
+        <button class="chip" data-f="mine">Мои</button>
+      </div>
+      <button class="pastbtn" id="pastBtn"></button>
+      <div class="scroll" id="tlScroll"><ol class="tl" id="tl"></ol></div>
+      <button class="btn wide" id="addBtn">Добавить своё событие</button>
+    </div>
+
+    <!-- Заметки -->
+    <div class="panel" id="p-notes" role="tabpanel" hidden>
+      <div class="ptitle">Заметки</div>
+      <div class="scroll"><ul class="notes" id="notes"></ul><div class="empty" id="notesEmpty">Заметок пока нет. Их можно оставить к любому дню службы.</div></div>
+      <button class="btn wide" id="noteToday">Заметка на сегодня</button>
+    </div>
+  </main>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <span class="ind" id="ind"></span>
+    <button role="tab" data-t="timer"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg>Таймер</button>
+    <button role="tab" data-t="cal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/></svg>Календарь</button>
+    <button role="tab" data-t="events"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>События</button>
+    <button role="tab" data-t="notes"><svg viewBox="0 0 24 24"><path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg>Заметки</button>
+  </nav>
+</div>
+
+<!-- Даты -->
+<dialog class="sheet" id="dlgDates" aria-labelledby="hDates">
+  <div class="grab"></div>
+  <h3 id="hDates" tabindex="-1">Даты службы</h3>
+  <label for="inS">Начало службы</label>
+  <input type="date" id="inS">
+  <label for="inE">Дата дембеля</label>
+  <input type="date" id="inE">
+  <div class="err" id="datesErr"></div>
+  <div class="drow">
+    <button class="btn" id="datesSave">Сохранить</button>
+    <button class="btn ghost" data-close>Отмена</button>
+  </div>
+  <div class="backup">
+    <p>Данные хранятся только на этом устройстве. Сохрани копию, чтобы не потерять заметки и события.</p>
+    <div class="drow" style="margin-top:0">
+      <button class="btn ghost" id="exportBtn">Сохранить копию</button>
+      <button class="btn ghost" id="importBtn">Восстановить</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </div>
+  <button class="danger" id="resetAll">Сбросить всё: даты, события и заметки</button>
+</dialog>
+
+<!-- Новое событие -->
+<dialog class="sheet" id="dlgAdd" aria-labelledby="hAdd">
+  <div class="grab"></div>
+  <h3 id="hAdd" tabindex="-1">Своё событие</h3>
+  <label for="evT">Название</label>
+  <input type="text" id="evT" placeholder="Например, присяга или отпуск" maxlength="60">
+  <label for="evD">Дата</label>
+  <input type="date" id="evD">
+  <div class="err" id="addErr"></div>
+  <div class="drow">
+    <button class="btn" id="evAdd">Добавить</button>
+    <button class="btn ghost" data-close>Отмена</button>
+  </div>
+</dialog>
+
+<!-- Карточка события -->
+<dialog class="sheet" id="dlgEv" aria-labelledby="hEv">
+  <div class="grab"></div>
+  <h3 id="hEv" tabindex="-1"></h3>
+  <div class="meta" id="evMeta"></div>
+  <div class="count" id="evCount"></div>
+  <div class="muted" id="evCountCap"></div>
+  <div class="desc" id="evDesc"></div>
+  <div class="origin" id="evOrigin" hidden><div class="olab">Откуда название</div><div id="evOriginT"></div></div>
+  <div class="drow">
+    <button class="btn" id="evToDay">Открыть день</button>
+    <button class="btn ghost" data-close>Закрыть</button>
+  </div>
+  <button class="danger" id="evDel" hidden>Удалить событие</button>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+const DAY=864e5, KEY='dmb:v1';
+const DEF={start:'2026-04-24',end:'2027-04-23',events:[],notes:{},unit:'days',mode:'left',theme:null,filter:'all',tab:'timer'};
+const clone=o=>JSON.parse(JSON.stringify(o));
+function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(clone(DEF),JSON.parse(r));}catch(e){}return clone(DEF);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const $=id=>document.getElementById(id);
+const P=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);};
+const K=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const addD=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+const dayDiff=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-new Date(a.getFullYear(),a.getMonth(),a.getDate()))/DAY);
+const pl=(n,a,b,c)=>{n=Math.abs(Math.trunc(n))%100;const r=n%10;if(n>10&&n<20)return c;if(r>1&&r<5)return b;if(r===1)return a;return c;};
+const nf=new Intl.NumberFormat('ru-RU');
+const dn=n=>nf.format(n)+' '+pl(n,'день','дня','дней');
+const MG=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const fd=d=>d.getDate()+' '+MG[d.getMonth()]+' '+d.getFullYear();
+const p2=n=>String(n).padStart(2,'0');
+const rel=diff=>diff===0?'сегодня':diff<0?dn(-diff)+' назад':'через '+dn(diff);
+
+let start,end,totalDays,sel=0,lastDayKey='',showPast=false,intro=!reduced,MSL=[];
+
+/* ---------- Анимации ---------- */
+function animIn(el,from,dur){if(reduced||!el.animate)return;
+  el.animate([Object.assign({opacity:0},from),{opacity:1,transform:'translate3d(0,0,0)'}],{duration:dur||380,easing:'cubic-bezier(.2,.8,.2,1)'});}
+function swapHero(){animIn($('big'),{transform:'translate3d(0,14px,0)'});animIn($('cap'),{transform:'translate3d(0,8px,0)'});animIn($('clock'),{transform:'translate3d(0,8px,0)'});}
+
+/* ---------- Вкладки ---------- */
+const TABS=['timer','cal','events','notes'];
+function showTab(t,animate){
+  const prev=S.tab, i=TABS.indexOf(t), dir=Math.sign(i-TABS.indexOf(prev));
+  S.tab=t;save();
+  TABS.forEach(x=>{$('p-'+x).hidden=x!==t;});
+  document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+  $('ind').style.transform='translateX('+(i*100)+'%)';
+  if(t==='timer')requestAnimationFrame(movePill);
+  if(animate&&dir)animIn($('p-'+t),{transform:'translate3d('+(dir*28)+'px,0,0)'},340);
+}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{if(b.dataset.t!==S.tab)showTab(b.dataset.t,true);});
+
+// Свайп между вкладками
+let tx=0,ty=0,tOk=false;
+$('main').addEventListener('touchstart',e=>{
+  const el=e.target;tOk=!el.closest('textarea,input,.chips,.seg');
+  tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+$('main').addEventListener('touchend',e=>{
+  if(!tOk)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return;
+  const i=TABS.indexOf(S.tab)+(dx<0?1:-1);if(i>=0&&i<TABS.length)showTab(TABS[i],true);},{passive:true});
+
+/* ---------- Листы ---------- */
+function openSheet(d){d.classList.remove('closing');d.showModal();d.querySelector('h3').focus({preventScroll:true});}
+function closeSheet(d){
+  if(!d.open||d.classList.contains('closing'))return;
+  if(reduced){d.close();return;}
+  d.classList.add('closing');
+  d.addEventListener('animationend',()=>{d.classList.remove('closing');d.close();},{once:true});
+}
+document.querySelectorAll('dialog.sheet').forEach(d=>{
+  d.addEventListener('cancel',e=>{e.preventDefault();closeSheet(d);});
+  d.addEventListener('click',e=>{if(e.target===d)closeSheet(d);});
+  d.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeSheet(d));
+});
+
+/* ---------- Тема ---------- */
+function applyTheme(){if(S.theme)document.documentElement.dataset.theme=S.theme;else delete document.documentElement.dataset.theme;
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{
+    if(!m.dataset.orig)m.dataset.orig=m.getAttribute('media')||'';
+    if(S.theme){m.removeAttribute('media');m.content=S.theme==='dark'?'#000000':'#ffffff';}
+    else{m.setAttribute('media',m.dataset.orig);m.content=m.dataset.orig.includes('dark')?'#000000':'#ffffff';}});
+  $('themeBtn').textContent=S.theme==='dark'?'Тёмная':S.theme==='light'?'Светлая':'Тема: авто';}
+
+/* ---------- Переключатель единиц ---------- */
+function movePill(){
+  const b=document.querySelector('#seg button[data-u="'+S.unit+'"]'),pill=$('pill');
+  document.querySelectorAll('#seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  if(!b.offsetWidth)return;
+  pill.style.width=b.offsetWidth+'px';pill.style.transform='translateX('+b.offsetLeft+'px)';
+}
+addEventListener('resize',movePill);
+
+function monthsBetween(a,b){
+  const at=m=>new Date(a.getFullYear(),a.getMonth()+m,a.getDate(),a.getHours(),a.getMinutes(),a.getSeconds());
+  let m=0;while(at(m+1)<=b)m++;
+  const s=at(m),n=at(m+1);
+  return{whole:m,frac:m+(b-s)/(n-s),days:Math.floor((b-s)/DAY)};
+}
+
+/* ---------- Этапы ---------- */
+function milestones(){
+  const T=dayDiff(start,end),L=[];
+  const add=(t,date,kind,desc,origin)=>{if(date>=start&&date<=end)L.push({t,date,kind,desc,origin});};
+  const GUESS=' Это догадка: в источниках происхождение не объясняется.';
+  const fs=n=>addD(start,n),be=n=>addD(end,-n);
+  for(let m=1;;m++){const d=new Date(start.getFullYear(),start.getMonth()+m,start.getDate());if(d>=end)break;
+    add(m+' '+pl(m,'месяц','месяца','месяцев')+' службы',d,'month','Ровно '+m+' '+pl(m,'месяц','месяца','месяцев')+' с начала службы.');}
+  add('Сто дней службы',fs(100),'trad','Первая сотня дней позади. По традиции в этот день меняют бляху на ремне.');
+  add('Малые топорики',fs(77),'trad','77 дней службы позади. В некоторых списках их называют «звенящие топорики». Малые даты обычно считают от начала службы, большие — до её конца.','Скорее всего, от вида числа: семёрки похожи на топорики.'+GUESS);
+  add('Малые матрёшки',fs(88),'trad','88 дней службы позади. Малые матрёшки считают от начала службы, большие — до дома.','Скорее всего, от вида числа: восьмёрки похожи на матрёшек.'+GUESS);
+  add('Малый заборчик',fs(111),'trad','111 дней службы позади. Большой заборчик будет, когда до дома останется 111 дней.','Скорее всего, от вида числа: три единицы похожи на штакетины забора.'+GUESS);
+  add('Гуси-лебеди',be(222),'trad','222 дня до дома. Эту дату отмечают дважды: когда до дома 222 дня и когда отслужено 222 дня.','Скорее всего, от вида числа: двойки похожи на силуэты плывущих птиц.'+GUESS);
+  add('Гуси-лебеди, отслужено',fs(222),'trad','222 дня службы позади. Вторые гуси-лебеди: первые были, когда до дома оставалось 222 дня.','Скорее всего, от вида числа: двойки похожи на силуэты плывущих птиц.'+GUESS);
+  add('Четверть службы',fs(Math.round(T*.25)),'trad','Позади четверть срока.');
+  add('300 дней до дома',be(300),'trad','Обратный отсчёт пошёл на сотни.');
+  add('Малая розетка',be(220),'trad','220 дней до дома. У розеток счёт наоборот, чем у заборчиков: малая считается до дома, большая от начала службы. В некоторых списках малую розетку отмечают за 200 дней.','Скорее всего, от напряжения в бытовой розетке: 220 вольт.'+GUESS);
+  add('200 дней до дома',be(200),'trad','Осталось двести дней.');
+  add('Экватор',fs(Math.round(T*.5)),'trad','Половина службы позади.','Как пересечение экватора: середина пути.');
+  add('200 дней службы',fs(200),'trad','Двести дней службы позади.');
+  add('Большая розетка',fs(220),'trad','220 дней службы позади. Малая розетка была, когда до дома оставалось 220 дней.','Скорее всего, от напряжения в бытовой розетке: 220 вольт.'+GUESS);
+  add('Три четверти службы',fs(Math.round(T*.75)),'trad','Осталась последняя четверть.');
+  add('Большой заборчик',be(111),'trad','111 дней до дома. Малый заборчик был на 111-й день службы.','Скорее всего, от вида числа: три единицы похожи на штакетины забора.'+GUESS);
+  add('Большие матрёшки',be(88),'trad','88 дней до дома.','Скорее всего, от вида числа: восьмёрки похожи на матрёшек.'+GUESS);
+  add('Большие топорики',be(77),'trad','77 дней до дома.','Скорее всего, от вида числа: семёрки похожи на топорики.'+GUESS);
+  add('Сто дней до дома',be(100),'trad','Стодневка, одна из главных армейских дат. По традиции дембеля с этого времени отказываются от масла.','Классическая стодневка — «сто дней до приказа»: за 100 дней до приказа министра обороны об увольнении. Здесь она посчитана как 100 дней до даты дембеля, потому что дата приказа приложению неизвестна.');
+  add('300 дней службы',fs(300),'trad','Триста дней службы позади.');
+  add('Полтинник',be(50),'trad','50 дней до дома. По армейской присказке пора ставить водку в холодильник.','«Полтинник» в разговорной речи — пятьдесят.');
+  add('Месяц до дома',be(30),'trad','Последний месяц.');
+  add('Дембельская пачка',be(20),'trad','20 дней до дома. Пачку сигарет подписывают по дням и выкуривают по одной за вечер, чтобы последняя пришлась на день дембеля. Некурящие делают то же с коробкой конфет. Иногда такую пачку дембелю оформляют младшие сослуживцы.','В пачке 20 сигарет, по одной на каждый оставшийся день.');
+  add('Космос',be(10),'trad','10 дней до дома.','Возможно, отсылка к обратному отсчёту перед стартом ракеты: 10, 9, 8…'+GUESS);
+  add('Неделя до дома',be(7),'trad','Последняя неделя.');
+  const SV='Три последних дня — три сигнала светофора: красный за 3 дня, жёлтый за 2, зелёный за 1. Зелёный значит, что дорога домой открыта.';
+  add('Светофор: красный',be(3),'trad','3 дня до дома.',SV);
+  add('Светофор: жёлтый',be(2),'trad','2 дня до дома.',SV);
+  add('Светофор: зелёный',be(1),'trad','Последний день. Завтра домой.',SV);
+  for(let y=start.getFullYear()+1;y<=end.getFullYear();y++){const d=new Date(y,0,1);if(d>start&&d<end)add('Новый год '+y,d,'trad','Новый год в армии.');}
+  add('Дембель',end,'trad','Служба окончена. Домой.');
+  S.events.forEach(e=>{const d=P(e.date);L.push({t:e.title,date:d,kind:'mine',id:e.id,desc:'Твоё событие.'});});
+  return L.sort((a,b)=>a.date-b.date||(a.kind==='month')-(b.kind==='month'));
+}
+
+/* ---------- Основное ---------- */
+function setup(){
+  start=P(S.start);end=P(S.end);totalDays=dayDiff(start,end)+1;
+  $('sd').textContent=fd(start);$('ed').textContent=fd(end);
+  sel=Math.min(Math.max(dayDiff(start,new Date()),0),totalDays-1);
+  MSL=milestones();lastDayKey='';
+  buildGrid();renderDay(0);renderTL(false);renderNotes();renderChips();tick();movePill();
+}
+
+function heroValues(now){
+  const total=end-start,done=Math.min(Math.max(now-start,0),total),left=total-done;
+  const v=S.mode==='left'?left:done,tail=S.mode==='left'?' до дома':' службы позади';
+  if(now<start){const n=Math.ceil((start-now)/DAY);return{txt:nf.format(n),cap:pl(n,'день','дня','дней')+' до начала службы',clock:'',num:n};}
+  if(left<=0&&S.mode==='left')return{txt:'0',cap:'Служба окончена. Ты дома',clock:'',num:0};
+  if(S.unit==='days'){const n=Math.floor(v/DAY),r=v-n*DAY;
+    return{txt:nf.format(n),num:n,cap:pl(n,'день','дня','дней')+tail,clock:'и '+p2(Math.floor(r/36e5))+':'+p2(Math.floor(r%36e5/6e4))+':'+p2(Math.floor(r%6e4/1e3))};}
+  if(S.unit==='weeks'){const n=v/(7*DAY),w=Math.floor(n),d=Math.floor((v-w*7*DAY)/DAY);
+    return{txt:n.toFixed(1).replace('.',','),cap:'недели'+tail,clock:w+' нед. '+d+' дн.'};}
+  if(S.unit==='months'){const r=S.mode==='left'?monthsBetween(now,end):monthsBetween(start,now);
+    return{txt:r.frac.toFixed(1).replace('.',','),cap:'месяца'+tail,clock:r.whole+' мес. '+r.days+' дн.'};}
+  if(S.unit==='hours'){const n=Math.floor(v/36e5);
+    return{txt:nf.format(n),cap:pl(n,'час','часа','часов')+tail,clock:'и '+p2(Math.floor(v%36e5/6e4))+':'+p2(Math.floor(v%6e4/1e3))};}
+  return{txt:(v/total*100).toFixed(1).replace('.',',')+'%',cap:S.mode==='left'?'службы осталось':'службы позади',clock:''};
+}
+function setBig(txt){const b=$('big');if(b.textContent===txt)return;b.textContent=txt;b.style.setProperty('--len',Math.max(txt.length,2));}
+
+function tick(){
+  const now=new Date(),total=end-start,done=Math.min(Math.max(now-start,0),total),left=total-done;
+  const h=heroValues(now);
+  if(!intro)setBig(h.txt);
+  $('cap').textContent=h.cap;$('clock').textContent=h.clock;
+  const pct=done/total*100;
+  $('pct').textContent=pct.toFixed(6).replace('.',',')+' %';
+  $('fill').style.transform='scaleX('+(pct/100)+')';
+  $('served').textContent='Прошло '+dn(Math.floor(done/DAY));
+  $('leftd').textContent='Осталось '+dn(Math.ceil(left/DAY));
+  const k=K(now);if(k!==lastDayKey){if(lastDayKey){buildGrid();renderTL(false);}lastDayKey=k;renderNext();}
+}
+
+function runIntro(){
+  const h=heroValues(new Date());
+  if(!intro||h.num===undefined||S.tab!=='timer'){intro=false;tick();return;}
+  const target=h.num,t0=performance.now(),dur=1100;
+  (function f(t){const p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,4);
+    setBig(nf.format(Math.round(target*e)));
+    if(p<1)requestAnimationFrame(f);else{intro=false;tick();}})(t0);
+}
+
+function renderNext(){
+  const now=new Date(),n=MSL.find(m=>dayDiff(now,m.date)>=0),c=$('nextCard');
+  if(!n){c.hidden=true;return;}
+  c.hidden=false;c.innerHTML='';
+  const l=document.createElement('div');
+  const sm=document.createElement('small');sm.textContent='Следующее событие';
+  const st=document.createElement('strong');st.textContent=n.t;
+  l.append(sm,st);
+  const r=document.createElement('div');r.className='r';r.textContent=rel(dayDiff(now,n.date));
+  c.append(l,r);c.onclick=()=>openEvent(n);
+}
+
+/* ---------- Календарь ---------- */
+function buildGrid(){
+  const g=$('grid');g.innerHTML='';
+  const ti=dayDiff(start,new Date());
+  const msKeys=new Set(MSL.filter(m=>m.kind!=='month').map(m=>K(m.date)));
+  let m=new Date(start.getFullYear(),start.getMonth(),1);
+  const first=+m,frag=document.createDocumentFragment();
+  while(m<=end){
+    const lab=document.createElement('div');lab.className='ml';
+    lab.textContent=MS[m.getMonth()]+(m.getMonth()===0||+m===first?' ’'+String(m.getFullYear()).slice(2):'');
+    frag.appendChild(lab);
+    for(let d=1;d<=31;d++){
+      const date=new Date(m.getFullYear(),m.getMonth(),d),c=document.createElement('button');c.className='c';
+      if(date.getMonth()!==m.getMonth()||date<start||date>end){c.classList.add('x');c.tabIndex=-1;c.setAttribute('aria-hidden','true');frag.appendChild(c);continue;}
+      const i=dayDiff(start,date);c.dataset.i=i;
+      if(i<ti)c.classList.add('on');else if(i===ti)c.classList.add('today');
+      if(msKeys.has(K(date)))c.classList.add('ms');
+      if(S.notes[K(date)])c.classList.add('n');
+      if(i===sel)c.classList.add('sel');
+      c.setAttribute('aria-label',fd(date));
+      frag.appendChild(c);
+    }
+    m=new Date(m.getFullYear(),m.getMonth()+1,1);
+  }
+  g.appendChild(frag);
+}
+$('grid').addEventListener('click',e=>{const c=e.target.closest('.c:not(.x)');if(c)selectDay(+c.dataset.i);});
+function selectDay(i){
+  const prev=sel;sel=Math.min(Math.max(i,0),totalDays-1);
+  document.querySelectorAll('.c.sel').forEach(c=>c.classList.remove('sel'));
+  const c=document.querySelector('.c[data-i="'+sel+'"]');if(c)c.classList.add('sel');
+  renderDay(Math.sign(sel-prev));
+}
+function renderDay(dir){
+  const d=addD(start,sel),diff=dayDiff(new Date(),d);
+  $('dTitle').textContent='День '+(sel+1)+' из '+totalDays;
+  $('dSub').textContent=fd(d)+', '+rel(diff);
+  $('dTag').textContent=MSL.filter(m=>K(m.date)===K(d)).map(m=>m.t).join(', ');
+  $('note').value=S.notes[K(d)]||'';
+  if(dir)animIn($('dayIn'),{transform:'translate3d('+(dir*16)+'px,0,0)'});
+}
+$('prev').onclick=()=>selectDay(sel-1);
+$('next').onclick=()=>selectDay(sel+1);
+let nt;
+$('note').addEventListener('input',e=>{
+  const k=K(addD(start,sel)),v=e.target.value;
+  if(v.trim())S.notes[k]=v;else delete S.notes[k];
+  clearTimeout(nt);nt=setTimeout(()=>{save();renderNotes();
+    const c=document.querySelector('.c[data-i="'+sel+'"]');if(c)c.classList.toggle('n',!!S.notes[k]);},300);
+});
+function goToDay(i){showTab('cal',true);selectDay(i);}
+
+/* ---------- События ---------- */
+function renderChips(){document.querySelectorAll('#chips .chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.f===S.filter));}
+document.querySelectorAll('#chips .chip').forEach(c=>c.onclick=()=>{if(S.filter===c.dataset.f)return;S.filter=c.dataset.f;save();renderChips();renderTL(true);$('tlScroll').scrollTop=0;});
+$('pastBtn').onclick=()=>{showPast=!showPast;renderTL(true);};
+
+function renderTL(animate,flashId){
+  const ol=$('tl'),now=new Date();ol.innerHTML='';
+  const list=MSL.filter(m=>S.filter==='all'||m.kind===S.filter);
+  const past=list.filter(m=>dayDiff(now,m.date)<0);
+  $('pastBtn').hidden=!past.length;
+  $('pastBtn').textContent=showPast?'Скрыть пройденные':'Показать пройденные ('+past.length+')';
+  const shown=showPast?list:list.filter(m=>dayDiff(now,m.date)>=0);
+  if(!shown.length){const p=document.createElement('li');p.className='empty';p.style.border='0';
+    p.textContent=S.filter==='mine'?'Своих событий пока нет. Добавь присягу, отпуск или день рождения.':'Все события в этом разделе позади.';
+    ol.appendChild(p);return;}
+  let nextMarked=false,flashEl=null;
+  shown.forEach((m,idx)=>{
+    const li=document.createElement('li'),diff=dayDiff(now,m.date);
+    if(diff<0)li.classList.add('past');else if(!nextMarked){li.classList.add('next');nextMarked=true;}
+    if(animate&&!reduced&&idx<14){li.classList.add('in');li.style.animationDelay=idx*26+'ms';}
+    if(flashId&&m.id===flashId){li.classList.add('flash');flashEl=li;}
+    const b=document.createElement('button');b.className='row';
+    const t=document.createElement('div');t.className='t';t.textContent=m.t;
+    const d=document.createElement('div');d.className='d';d.textContent=fd(m.date)+', день '+(dayDiff(start,m.date)+1);
+    const s=document.createElement('div');s.className='s';s.textContent=diff<0?'позади':rel(diff);
+    b.append(t,s,d);b.onclick=()=>openEvent(m);
+    li.appendChild(b);ol.appendChild(li);
+  });
+  if(flashEl)flashEl.scrollIntoView({block:'center',behavior:reduced?'auto':'smooth'});
+}
+
+let curEv=null;
+function openEvent(m){
+  curEv=m;const diff=dayDiff(new Date(),m.date);
+  $('hEv').textContent=m.t;
+  $('evMeta').textContent=fd(m.date)+', день '+(dayDiff(start,m.date)+1)+' из '+totalDays;
+  $('evCount').textContent=diff===0?'Сегодня':nf.format(Math.abs(diff));
+  $('evCountCap').textContent=diff===0?'':diff>0?pl(diff,'день','дня','дней')+' осталось':pl(-diff,'день','дня','дней')+' назад';
+  $('evDesc').textContent=m.desc||'';
+  $('evOrigin').hidden=!m.origin;$('evOriginT').textContent=m.origin||'';
+  $('evDel').hidden=!m.id;$('evDel').classList.remove('armed');$('evDel').textContent='Удалить событие';
+  openSheet($('dlgEv'));
+}
+$('evToDay').onclick=()=>{const i=dayDiff(start,curEv.date);closeSheet($('dlgEv'));goToDay(i);};
+$('evDel').onclick=()=>{const b=$('evDel');
+  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Нажми ещё раз, чтобы удалить';return;}
+  S.events=S.events.filter(e=>e.id!==curEv.id);save();MSL=milestones();buildGrid();renderTL(false);renderNext();renderDay(0);
+  closeSheet($('dlgEv'));toast('Событие удалено');};
+
+$('addBtn').onclick=()=>{$('evT').value='';$('evD').value='';$('addErr').textContent='';openSheet($('dlgAdd'));};
+$('evAdd').onclick=()=>{
+  const t=$('evT').value.trim(),d=$('evD').value;
+  if(!t||!d){$('addErr').textContent='Укажи название и дату';return;}
+  if(P(d)<start||P(d)>end){$('addErr').textContent='Дата должна быть в пределах службы: '+fd(start)+' – '+fd(end);return;}
+  const id=Date.now().toString(36);
+  S.events.push({id,title:t,date:d});save();MSL=milestones();
+  if(S.filter!=='all'&&S.filter!=='mine'){S.filter='mine';renderChips();}
+  if(dayDiff(new Date(),P(d))<0)showPast=true;
+  closeSheet($('dlgAdd'));
+  if(S.tab!=='events')showTab('events',true);
+  buildGrid();renderTL(false,id);renderNext();renderDay(0);
+  toast('Событие добавлено');
+};
+
+/* ---------- Заметки ---------- */
+function renderNotes(){
+  const ks=Object.keys(S.notes).sort().reverse();
+  $('notesEmpty').hidden=!!ks.length;
+  const ul=$('notes');ul.innerHTML='';
+  ks.forEach(k=>{const d=P(k),li=document.createElement('li'),b=document.createElement('button');
+    const sm=document.createElement('small');sm.textContent=fd(d)+', день '+(dayDiff(start,d)+1);
+    const tx=document.createElement('span');tx.textContent=S.notes[k];
+    b.append(sm,tx);b.onclick=()=>goToDay(dayDiff(start,d));
+    li.appendChild(b);ul.appendChild(li);});
+}
+$('noteToday').onclick=()=>{
+  const i=Math.min(Math.max(dayDiff(start,new Date()),0),totalDays-1);
+  goToDay(i);setTimeout(()=>$('note').focus(),reduced?0:200);
+};
+
+/* ---------- Управление ---------- */
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{if(S.unit===b.dataset.u)return;S.unit=b.dataset.u;save();movePill();intro=false;tick();swapHero();});
+$('big').onclick=()=>{S.mode=S.mode==='left'?'done':'left';save();intro=false;tick();swapHero();};
+$('themeBtn').onclick=()=>{S.theme=S.theme===null?'light':S.theme==='light'?'dark':null;save();applyTheme();};
+
+$('setBtn').onclick=()=>{$('inS').value=S.start;$('inE').value=S.end;$('datesErr').textContent='';
+  $('resetAll').classList.remove('armed');$('resetAll').textContent='Сбросить всё: даты, события и заметки';openSheet($('dlgDates'));};
+$('datesSave').onclick=()=>{
+  const s=$('inS').value,e=$('inE').value;
+  if(!s||!e||P(e)<=P(s)){$('datesErr').textContent='Дата дембеля должна быть позже даты начала службы';return;}
+  S.start=s;S.end=e;save();closeSheet($('dlgDates'));setup();swapHero();toast('Даты сохранены');
+};
+$('resetAll').onclick=()=>{const b=$('resetAll');
+  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Нажми ещё раз: всё будет удалено';return;}
+  S=clone(DEF);save();applyTheme();closeSheet($('dlgDates'));setup();showTab('timer',false);swapHero();toast('Всё сброшено');};
+
+$('shareBtn').onclick=async()=>{
+  const now=new Date(),total=end-start,done=Math.min(Math.max(now-start,0),total);
+  const dd=Math.floor(done/DAY),ld=Math.ceil((total-done)/DAY);
+  const txt='Отслужил '+dn(dd)+' из '+(totalDays-1)+' ('+(done/total*100).toFixed(1).replace('.',',')+' %). До дома '+dn(ld)+'.';
+  try{await navigator.clipboard.writeText(txt);toast('Скопировано');}catch(e){toast(txt);}
+};
+
+/* ---------- Резервная копия ---------- */
+$('exportBtn').onclick=async()=>{
+  const data=JSON.stringify({app:'dmb',version:1,saved:new Date().toISOString(),state:S},null,2);
+  const name='dmb-backup-'+K(new Date())+'.json';
+  try{
+    const file=new File([data],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Копия ДМБ'});toast('Копия сохранена');return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+  toast('Копия сохранена');
+};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const j=JSON.parse(await f.text()),st=j&&j.state;
+    if(!st||!/^\d{4}-\d{2}-\d{2}$/.test(st.start)||!/^\d{4}-\d{2}-\d{2}$/.test(st.end))throw 0;
+    S=Object.assign(clone(DEF),st);save();applyTheme();closeSheet($('dlgDates'));setup();showTab(S.tab,false);toast('Данные восстановлены');
+  }catch(err){$('datesErr').textContent='Файл не похож на копию ДМБ-таймера';}
+};
+
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400);}
+
+// Если окно просмотра не сообщает свою высоту, задаём её по экрану устройства
+function fitHeight(){
+  const app=document.querySelector('.app');
+  if(window.innerHeight<400){app.style.height=Math.max((screen.height||700)-160,500)+'px';}
+  else app.style.height='';
+  movePill();
+}
+addEventListener('resize',fitHeight);
+fitHeight();
+
+applyTheme();
+if(!TABS.includes(S.tab))S.tab='timer';
+showTab(S.tab,false);
+setup();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
+runIntro();
+setInterval(tick,1000);
+// Пересчёт после возврата в приложение (iOS замораживает таймеры в фоне)
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();fitHeight();}});
+// Офлайн-режим
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+})();
+</script>
+</body>
+</html>
