@@ -1,5 +1,5 @@
 // Офлайн-кэш ДМБ-таймера. При изменении файлов увеличь номер версии.
-const CACHE = 'dmb-v3';
+const CACHE = 'dmb-v4';
 const CORE = [
   './',
   './index.html',

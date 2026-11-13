@@ -621,7 +621,7 @@ function renderTL(animate,flashId){
     if(flashId&&m.id===flashId){li.classList.add('flash');flashEl=li;}
     const b=document.createElement('button');b.className='row';
     const t=document.createElement('div');t.className='t';t.textContent=m.t;
-    const d=document.createElement('div');d.className='d';d.textContent=fd(m.date)+', день '+(dayDiff(start,m.date)+1);
+    const d=document.createElement('div');d.className='d';d.textContent=fd(m.date);
     const s=document.createElement('div');s.className='s';s.textContent=diff<0?'позади':rel(diff);
     b.append(t,s,d);b.onclick=()=>openEvent(m);
     li.appendChild(b);ol.appendChild(li);
