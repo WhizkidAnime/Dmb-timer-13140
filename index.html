@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ДМБ</title>
-<meta name="description" content="Таймер до дембеля: сколько осталось, армейские даты, календарь службы и заметки">
+<meta name="description" content="Таймер до дембеля: сколько осталось, армейские даты, календарь службы и события">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ДМБ">
@@ -74,8 +74,6 @@ main{flex:1;min-height:0;position:relative}
 
 .prog{flex:none}
 .pct{font-family:var(--display);font-weight:500;font-size:22px;font-variant-numeric:tabular-nums;margin-bottom:10px;letter-spacing:-.02em}
-.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
-.bar i{display:block;height:100%;width:100%;background:var(--fg);transform:scaleX(0);transform-origin:left center;transition:transform 1.2s var(--ease)}
 .prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:8px;font-size:14px}
 
 /* Календарь */
@@ -87,15 +85,13 @@ main{flex:1;min-height:0;position:relative}
 .c.today{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--fg)}
 .c.ms:not(.on):not(.today){box-shadow:inset 0 0 0 1px var(--mute)}
 .c.sel{transform:scale(1.45);z-index:2;outline:1.5px solid var(--fg);outline-offset:1px}
-.c.n::after{content:"";position:absolute;inset:32%;border-radius:50%;background:var(--bg)}
-.c.n:not(.on)::after{background:var(--fg)}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--mute);margin-top:10px;flex-wrap:wrap;flex:none}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend b{width:10px;height:10px;border-radius:2px;display:inline-block;background:var(--cell)}
 .legend b.on{background:var(--fg)}
 .legend b.t{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--fg)}
 .legend b.m{box-shadow:inset 0 0 0 1px var(--mute)}
-.day{margin-top:14px;background:var(--soft);border-radius:14px;padding:14px;flex:1;min-height:180px;display:flex;flex-direction:column}
+.day{margin-top:14px;background:var(--soft);border-radius:14px;padding:14px;flex:none}
 .dayhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .dayhead strong{font-weight:600}
 .dayrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px;min-height:32px}
@@ -108,7 +104,6 @@ main{flex:1;min-height:0;position:relative}
 .nav{display:flex;gap:4px;flex-shrink:0}
 .nav button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:16px;transition:transform .15s}
 .nav button:active{transform:scale(.9)}
-textarea{width:100%;flex:1;min-height:70px;margin-top:10px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;resize:none;font-size:15px}
 
 /* События */
 #p-events{overflow:hidden}
@@ -136,14 +131,6 @@ ol.tl{list-style:none;margin:0;padding:0}
 .btn.wide{width:100%;flex:none;margin-top:12px}
 input[type=text],input[type=date]{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:15px;width:100%;min-width:0}
 
-/* Заметки */
-.notes{list-style:none;margin:0;padding:0}
-.notes li{border-top:1px solid var(--line)}
-.notes li:last-child{border-bottom:1px solid var(--line)}
-.notes button{display:block;width:100%;text-align:left;background:none;border:0;padding:12px 0;cursor:pointer}
-.notes small{display:block;color:var(--mute);font-size:13px}
-.notes span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
-
 /* Нижнее меню: плавающая стеклянная капсула */
 :root{--glass:rgba(255,255,255,.58);--glass-edge:rgba(0,0,0,.09);--glass-hi:rgba(255,255,255,.85);--glass-sel:rgba(0,0,0,.09);--glass-shadow:rgba(0,0,0,.14)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--glass:rgba(44,44,46,.5);--glass-edge:rgba(255,255,255,.14);--glass-hi:rgba(255,255,255,.22);--glass-sel:rgba(255,255,255,.15);--glass-shadow:rgba(0,0,0,.5)}}
@@ -154,7 +141,7 @@ nav.tabs{position:absolute;left:14px;right:14px;bottom:10px;z-index:5;display:fl
 @supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   nav.tabs{background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}
 }
-nav.tabs .ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px) / 4);border-radius:999px;background:var(--glass-sel);
+nav.tabs .ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px) / 3);border-radius:999px;background:var(--glass-sel);
   box-shadow:inset 0 0 0 1px var(--glass-edge);transition:transform .45s var(--ease)}
 nav.tabs button{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:8px 0 7px;font-size:12px;color:var(--mute);cursor:pointer;transition:color .25s}
 nav.tabs button[aria-selected="true"]{color:var(--fg);font-weight:600}
@@ -202,6 +189,14 @@ dialog.sheet.closing::backdrop{animation:fadeOut .26s ease-in forwards}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:1ms!important;animation-delay:0ms!important;transition-duration:1ms!important}
 }
+/* Жидкая капсула прогресса */
+:root{--cw1:#2d3136;--cw2:#1b1e22;--cw3:#0b0c0e;--cw4:#2a2d31;--ce1:#f6f6f7;--ce2:#e8e9ea;--ce3:#f1f1f2;--crim:#c4c6c9}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--cw1:#f6fcff;--cw2:#e2f3fb;--cw3:#b4d0e2;--cw4:#f2faff;--ce1:#191c21;--ce2:#0a0c0e;--ce3:#15171a;--crim:#4b4e53}}
+:root[data-theme="dark"]{--cw1:#f6fcff;--cw2:#e2f3fb;--cw3:#b4d0e2;--cw4:#f2faff;--ce1:#191c21;--ce2:#0a0c0e;--ce3:#15171a;--crim:#4b4e53}
+.capsule{all:unset;display:block;width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;border-radius:999px}
+.capsule:focus-visible{outline:2px solid var(--fg);outline-offset:5px}
+.capsvg{display:block;width:100%;height:36px;overflow:visible}
+
 /* iOS и веб-приложение */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{overscroll-behavior:none}
@@ -222,7 +217,6 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
   <header>
     <div class="mark">ДМБ</div>
     <div class="tools">
-      <button class="tb" id="shareBtn">Поделиться</button>
       <button class="tb" id="themeBtn">Тема</button>
       <button class="tb" id="setBtn">Даты</button>
     </div>
@@ -247,7 +241,23 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
       <button class="nextcard" id="nextCard" hidden></button>
       <div class="prog">
         <div class="pct" id="pct"></div>
-        <div class="bar"><i id="fill"></i></div>
+        <button class="capsule" id="capsule" type="button" aria-label="Прогресс службы. Нажми, чтобы повторить анимацию">
+          <svg class="capsvg" id="capSvg" aria-hidden="true">
+            <defs>
+              <linearGradient id="capWaterGrad" x1="0" y1="0.1" x2="1" y2="0.95">
+                <stop offset="0%" style="stop-color:var(--cw1)"/><stop offset="35%" style="stop-color:var(--cw2)"/>
+                <stop offset="73%" style="stop-color:var(--cw3)"/><stop offset="100%" style="stop-color:var(--cw4)"/>
+              </linearGradient>
+              <clipPath id="capClip"><rect id="capClipRect"/></clipPath>
+            </defs>
+            <g clip-path="url(#capClip)">
+              <rect id="capEmpty" style="fill:var(--ce2)"/>
+              <path id="capWater" d="" fill="url(#capWaterGrad)"/>
+              <path id="capEdge" d="" fill="none" stroke="#fff" stroke-opacity=".72" stroke-width="1"/>
+            </g>
+            <rect id="capRim1" fill="none" style="stroke:var(--crim)" stroke-width="1.2"/>
+          </svg>
+        </button>
         <div class="prow"><span id="sd"></span><span id="ed"></span></div>
         <div class="prow muted"><span id="served"></span><span id="leftd"></span></div>
       </div>
@@ -274,7 +284,6 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
           <button class="todaybtn" id="todayBtn" tabindex="-1" aria-hidden="true"><i></i>Сегодня</button>
         </div>
         </div>
-        <textarea id="note" placeholder="Заметка к этому дню"></textarea>
       </div>
     </div>
 
@@ -291,13 +300,6 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
       <div class="scroll" id="tlScroll"><ol class="tl" id="tl"></ol></div>
       <button class="btn wide" id="addBtn">Добавить своё событие</button>
     </div>
-
-    <!-- Заметки -->
-    <div class="panel" id="p-notes" role="tabpanel" hidden>
-      <div class="ptitle">Заметки</div>
-      <div class="scroll"><ul class="notes" id="notes"></ul><div class="empty" id="notesEmpty">Заметок пока нет. Их можно оставить к любому дню службы.</div></div>
-      <button class="btn wide" id="noteToday">Заметка на сегодня</button>
-    </div>
   </main>
 
   <nav class="tabs" role="tablist" id="tabs">
@@ -305,7 +307,6 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
     <button role="tab" data-t="timer"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg>Таймер</button>
     <button role="tab" data-t="cal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/></svg>Календарь</button>
     <button role="tab" data-t="events"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>События</button>
-    <button role="tab" data-t="notes"><svg viewBox="0 0 24 24"><path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg>Заметки</button>
   </nav>
 </div>
 
@@ -324,14 +325,14 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
   </div>
   <button class="btn ghost wide" id="notifBtn" style="margin-top:18px">Уведомления</button>
   <div class="backup">
-    <p>Данные хранятся только на этом устройстве. Сохрани копию, чтобы не потерять заметки и события.</p>
+    <p>Данные хранятся только на этом устройстве. Сохрани копию, чтобы не потерять события.</p>
     <div class="drow" style="margin-top:0">
       <button class="btn ghost" id="exportBtn">Сохранить копию</button>
       <button class="btn ghost" id="importBtn">Восстановить</button>
     </div>
     <input type="file" id="importFile" accept="application/json,.json" hidden>
   </div>
-  <button class="danger" id="resetAll">Сбросить всё: даты, события и заметки</button>
+  <button class="danger" id="resetAll">Сбросить всё: даты и события</button>
 </dialog>
 
 <!-- Новое событие -->
@@ -393,7 +394,7 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
 <script>
 (function(){
 const DAY=864e5, KEY='dmb:v1';
-const DEF={start:'2026-04-24',end:'2027-04-23',events:[],notes:{},unit:'days',mode:'left',theme:null,filter:'all',tab:'timer',notif:{time:'09:00',before:false,daily:false}};
+const DEF={start:'2026-04-24',end:'2027-04-23',events:[],unit:'days',mode:'left',theme:null,filter:'all',tab:'timer',notif:{time:'09:00',before:false,daily:false}};
 const clone=o=>JSON.parse(JSON.stringify(o));
 function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(clone(DEF),JSON.parse(r));}catch(e){}return clone(DEF);}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -408,6 +409,9 @@ const dayDiff=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate
 const pl=(n,a,b,c)=>{n=Math.abs(Math.trunc(n))%100;const r=n%10;if(n>10&&n<20)return c;if(r>1&&r<5)return b;if(r===1)return a;return c;};
 const nf=new Intl.NumberFormat('ru-RU');
 const dn=n=>nf.format(n)+' '+pl(n,'день','дня','дней');
+const isOne=n=>{n=Math.abs(Math.trunc(n))%100;return n%10===1&&n!==11;};
+const ostalos=n=>isOne(n)?'Остался':'Осталось';
+const proshlo=n=>isOne(n)?'Прошёл':'Прошло';
 const MG=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const MS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 const fd=d=>d.getDate()+' '+MG[d.getMonth()]+' '+d.getFullYear();
@@ -422,14 +426,14 @@ function animIn(el,from,dur){if(reduced||!el.animate)return;
 function swapHero(){animIn($('big'),{transform:'translate3d(0,14px,0)'});animIn($('cap'),{transform:'translate3d(0,8px,0)'});animIn($('clock'),{transform:'translate3d(0,8px,0)'});}
 
 /* ---------- Вкладки ---------- */
-const TABS=['timer','cal','events','notes'];
+const TABS=['timer','cal','events'];
 function showTab(t,animate){
   const prev=S.tab, i=TABS.indexOf(t), dir=Math.sign(i-TABS.indexOf(prev));
   S.tab=t;save();
   TABS.forEach(x=>{$('p-'+x).hidden=x!==t;});
   document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
   $('ind').style.transform='translateX('+(i*100)+'%)';
-  if(t==='timer')requestAnimationFrame(movePill);
+  if(t==='timer')requestAnimationFrame(()=>{movePill();capLayout();});
   if(animate&&dir)animIn($('p-'+t),{transform:'translate3d('+(dir*28)+'px,0,0)'},340);
 }
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{if(b.dataset.t!==S.tab)showTab(b.dataset.t,true);});
@@ -486,33 +490,32 @@ function monthsBetween(a,b){
 function milestones(){
   const T=dayDiff(start,end),L=[];
   const add=(t,date,kind,desc,origin)=>{if(date>=start&&date<=end)L.push({t,date,kind,desc,origin});};
-  const GUESS=' Это догадка: в источниках происхождение не объясняется.';
   const fs=n=>addD(start,n),be=n=>addD(end,-n);
   for(let m=1;;m++){const d=new Date(start.getFullYear(),start.getMonth()+m,start.getDate());if(d>=end)break;
     add(m+' '+pl(m,'месяц','месяца','месяцев')+' службы',d,'month','Ровно '+m+' '+pl(m,'месяц','месяца','месяцев')+' с начала службы.');}
   add('Сто дней службы',fs(100),'trad','Первая сотня дней позади. По традиции в этот день меняют бляху на ремне.');
-  add('Малые топорики',fs(77),'trad','77 дней службы позади. В некоторых списках их называют «звенящие топорики». Малые даты обычно считают от начала службы, большие — до её конца.','Скорее всего, от вида числа: семёрки похожи на топорики.'+GUESS);
-  add('Малые матрёшки',fs(88),'trad','88 дней службы позади. Малые матрёшки считают от начала службы, большие — до дома.','Скорее всего, от вида числа: восьмёрки похожи на матрёшек.'+GUESS);
-  add('Малый заборчик',fs(111),'trad','111 дней службы позади. Большой заборчик будет, когда до дома останется 111 дней.','Скорее всего, от вида числа: три единицы похожи на штакетины забора.'+GUESS);
-  add('Гуси-лебеди',be(222),'trad','222 дня до дома. Эту дату отмечают дважды: когда до дома 222 дня и когда отслужено 222 дня.','Скорее всего, от вида числа: двойки похожи на силуэты плывущих птиц.'+GUESS);
-  add('Гуси-лебеди, отслужено',fs(222),'trad','222 дня службы позади. Вторые гуси-лебеди: первые были, когда до дома оставалось 222 дня.','Скорее всего, от вида числа: двойки похожи на силуэты плывущих птиц.'+GUESS);
+  add('Малые топорики',fs(77),'trad','77 дней службы позади. В некоторых списках их называют «звенящие топорики». Малые даты обычно считают от начала службы, большие — до её конца.','Скорее всего, от вида числа: семёрки похожи на топорики.');
+  add('Малые матрёшки',fs(88),'trad','88 дней службы позади. Малые матрёшки считают от начала службы, большие — до дома.','Скорее всего, от вида числа: восьмёрки похожи на матрёшек.');
+  add('Малый заборчик',fs(111),'trad','111 дней службы позади. Большой заборчик будет, когда до дома останется 111 дней.','Скорее всего, от вида числа: три единицы похожи на штакетины забора.');
+  add('Гуси-лебеди',be(222),'trad','222 дня до дома. Эту дату отмечают дважды: когда до дома 222 дня и когда отслужено 222 дня.','Скорее всего, от вида числа: двойки похожи на силуэты плывущих птиц.');
+  add('Гуси-лебеди, отслужено',fs(222),'trad','222 дня службы позади. Вторые гуси-лебеди: первые были, когда до дома оставалось 222 дня.','Скорее всего, от вида числа: двойки похожи на силуэты плывущих птиц.');
   add('Четверть службы',fs(Math.round(T*.25)),'trad','Позади четверть срока.');
   add('300 дней до дома',be(300),'trad','Обратный отсчёт пошёл на сотни.');
-  add('Малая розетка',be(220),'trad','220 дней до дома. У розеток счёт наоборот, чем у заборчиков: малая считается до дома, большая от начала службы. В некоторых списках малую розетку отмечают за 200 дней.','Скорее всего, от напряжения в бытовой розетке: 220 вольт.'+GUESS);
+  add('Малая розетка',be(220),'trad','220 дней до дома. У розеток счёт наоборот, чем у заборчиков: малая считается до дома, большая от начала службы. В некоторых списках малую розетку отмечают за 200 дней.','Скорее всего, от напряжения в бытовой розетке: 220 вольт.');
   add('200 дней до дома',be(200),'trad','Осталось двести дней.');
   add('Экватор',fs(Math.round(T*.5)),'trad','Половина службы позади.','Как пересечение экватора: середина пути.');
   add('200 дней службы',fs(200),'trad','Двести дней службы позади.');
-  add('Большая розетка',fs(220),'trad','220 дней службы позади. Малая розетка была, когда до дома оставалось 220 дней.','Скорее всего, от напряжения в бытовой розетке: 220 вольт.'+GUESS);
+  add('Большая розетка',fs(220),'trad','220 дней службы позади. Малая розетка была, когда до дома оставалось 220 дней.','Скорее всего, от напряжения в бытовой розетке: 220 вольт.');
   add('Три четверти службы',fs(Math.round(T*.75)),'trad','Осталась последняя четверть.');
-  add('Большой заборчик',be(111),'trad','111 дней до дома. Малый заборчик был на 111-й день службы.','Скорее всего, от вида числа: три единицы похожи на штакетины забора.'+GUESS);
-  add('Большие матрёшки',be(88),'trad','88 дней до дома.','Скорее всего, от вида числа: восьмёрки похожи на матрёшек.'+GUESS);
-  add('Большие топорики',be(77),'trad','77 дней до дома.','Скорее всего, от вида числа: семёрки похожи на топорики.'+GUESS);
+  add('Большой заборчик',be(111),'trad','111 дней до дома. Малый заборчик был на 111-й день службы.','Скорее всего, от вида числа: три единицы похожи на штакетины забора.');
+  add('Большие матрёшки',be(88),'trad','88 дней до дома.','Скорее всего, от вида числа: восьмёрки похожи на матрёшек.');
+  add('Большие топорики',be(77),'trad','77 дней до дома.','Скорее всего, от вида числа: семёрки похожи на топорики.');
   add('Сто дней до дома',be(100),'trad','Стодневка, одна из главных армейских дат. По традиции дембеля с этого времени отказываются от масла.','Классическая стодневка — «сто дней до приказа»: за 100 дней до приказа министра обороны об увольнении. Здесь она посчитана как 100 дней до даты дембеля, потому что дата приказа приложению неизвестна.');
   add('300 дней службы',fs(300),'trad','Триста дней службы позади.');
   add('Полтинник',be(50),'trad','50 дней до дома. По армейской присказке пора ставить водку в холодильник.','«Полтинник» в разговорной речи — пятьдесят.');
   add('Месяц до дома',be(30),'trad','Последний месяц.');
   add('Дембельская пачка',be(20),'trad','20 дней до дома. Пачку сигарет подписывают по дням и выкуривают по одной за вечер, чтобы последняя пришлась на день дембеля. Некурящие делают то же с коробкой конфет. Иногда такую пачку дембелю оформляют младшие сослуживцы.','В пачке 20 сигарет, по одной на каждый оставшийся день.');
-  add('Космос',be(10),'trad','10 дней до дома.','Возможно, отсылка к обратному отсчёту перед стартом ракеты: 10, 9, 8…'+GUESS);
+  add('Космос',be(10),'trad','10 дней до дома.','Возможно, отсылка к обратному отсчёту перед стартом ракеты: 10, 9, 8…');
   add('Неделя до дома',be(7),'trad','Последняя неделя.');
   const SV='Три последних дня — три сигнала светофора: красный за 3 дня, жёлтый за 2, зелёный за 1. Зелёный значит, что дорога домой открыта.';
   add('Светофор: красный',be(3),'trad','3 дня до дома.',SV);
@@ -530,7 +533,7 @@ function setup(){
   $('sd').textContent=fd(start);$('ed').textContent=fd(end);
   sel=Math.min(Math.max(dayDiff(start,new Date()),0),totalDays-1);
   MSL=milestones();lastDayKey='';
-  buildGrid();renderDay(0);renderTL(false);renderNotes();renderChips();tick();movePill();
+  buildGrid();renderDay(0);renderTL(false);renderChips();tick();movePill();
 }
 
 function heroValues(now){
@@ -550,6 +553,57 @@ function heroValues(now){
 }
 function setBig(txt){const b=$('big');if(b.textContent===txt)return;b.textContent=txt;b.style.setProperty('--len',Math.max(txt.length,2));}
 
+/* ---------- Жидкая капсула ---------- */
+const CAP_H=36,CAP_PAD=2.8,CAP_AMP=4.7;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+let capW=0,capShown=0,capFrame=0,capIntro=false,lastPct=0;
+function capSet(id,o){const e=$(id);for(const k in o)e.setAttribute(k,o[k]);}
+function capDraw(p,amp,phase){
+  capShown=clamp(p,0,100);
+  if(!capW)return;
+  if(capShown<0.001){$('capWater').setAttribute('d','');$('capEdge').setAttribute('d','');return;}
+  const L=CAP_PAD,R=capW-CAP_PAD,T=CAP_PAD,B=CAP_H-CAP_PAD,front=L+(R-L)*capShown/100,pts=[];
+  for(let y=T;y<=B+0.01;y+=1.1){
+    const n=(y-(T+B)/2)/((B-T)/2);
+    const rip=Math.sin(y/3.6+phase)+0.28*Math.sin(y/1.6+phase*1.4);
+    pts.push((front+amp*(rip+n*0.3)).toFixed(2)+' '+y.toFixed(2));
+  }
+  $('capEdge').setAttribute('d',capShown>=99.9?'':'M '+pts.join(' L '));
+  $('capWater').setAttribute('d','M '+L+' '+T+' L '+pts.join(' L ')+' L '+L+' '+B+' Z');
+}
+function capPlay(from,to,dur){
+  cancelAnimationFrame(capFrame);capFrame=0;
+  if(!capW)return;
+  if(reduced){capDraw(to,0,0);return;}
+  const t0=performance.now();
+  (function f(now){
+    const t=clamp((now-t0)/dur,0,1),e=1-Math.pow(1-t,3);
+    capDraw(from+(to-from)*e,CAP_AMP*(1-t)*(1-t)*Math.sin(t*Math.PI),t*19);
+    if(t<1)capFrame=requestAnimationFrame(f);else{capDraw(to,0,0);capFrame=0;}
+  })(t0);
+}
+function capLayout(){
+  const w=Math.round($('capsule').clientWidth);
+  if(!w)return;                       // вкладка «Таймер» скрыта
+  if(w!==capW){
+    capW=w;const H=CAP_H,ih=H-2*CAP_PAD,iw=w-2*CAP_PAD;
+    $('capSvg').setAttribute('viewBox','0 0 '+w+' '+H);
+    capSet('capClipRect',{x:CAP_PAD,y:CAP_PAD,width:iw,height:ih,rx:ih/2});
+    capSet('capEmpty',{x:CAP_PAD,y:CAP_PAD,width:iw,height:ih});
+    capSet('capRim1',{x:1,y:1,width:w-2,height:H-2,rx:(H-2)/2});
+    if(!capFrame)capDraw(capShown,0,0);
+  }
+  if(!capIntro){capIntro=true;capPlay(0,lastPct,1500);}   // первое появление на экране
+}
+function capUpdate(p){
+  lastPct=p;
+  if(!capIntro||capFrame)return;
+  if(Math.abs(p-capShown)>0.0002)capDraw(p,0,0);
+}
+$('capsule').onclick=()=>capPlay(0,lastPct,1600);
+if(window.ResizeObserver)new ResizeObserver(capLayout).observe($('capsule'));
+else addEventListener('resize',capLayout);
+
 function tick(){
   const now=new Date(),total=end-start,done=Math.min(Math.max(now-start,0),total),left=total-done;
   const h=heroValues(now);
@@ -557,9 +611,9 @@ function tick(){
   $('cap').textContent=h.cap;$('clock').textContent=h.clock;
   const pct=done/total*100;
   $('pct').textContent=pct.toFixed(6).replace('.',',')+' %';
-  $('fill').style.transform='scaleX('+(pct/100)+')';
-  $('served').textContent='Прошло '+dn(Math.floor(done/DAY));
-  $('leftd').textContent='Осталось '+dn(Math.ceil(left/DAY));
+  capUpdate(pct);
+  {const n=Math.floor(done/DAY);$('served').textContent=proshlo(n)+' '+dn(n);}
+  {const n=Math.ceil(left/DAY);$('leftd').textContent=ostalos(n)+' '+dn(n);}
   const k=K(now);if(k!==lastDayKey){if(lastDayKey){buildGrid();renderTL(false);updateTodayBtn();}lastDayKey=k;renderNext();}
 }
 
@@ -601,7 +655,6 @@ function buildGrid(){
       const i=dayDiff(start,date);c.dataset.i=i;
       if(i<ti)c.classList.add('on');else if(i===ti)c.classList.add('today');
       if(msKeys.has(K(date)))c.classList.add('ms');
-      if(S.notes[K(date)])c.classList.add('n');
       if(i===sel)c.classList.add('sel');
       c.setAttribute('aria-label',fd(date));
       frag.appendChild(c);
@@ -627,20 +680,12 @@ function renderDay(dir){
   $('dTitle').textContent='День '+(sel+1)+' из '+totalDays;
   $('dSub').textContent=fd(d)+', '+rel(diff);
   $('dTag').textContent=MSL.filter(m=>K(m.date)===K(d)).map(m=>m.t).join(', ');
-  $('note').value=S.notes[K(d)]||'';
   if(dir)animIn($('dayIn'),{transform:'translate3d('+(dir*16)+'px,0,0)'});
   updateTodayBtn();
 }
 $('todayBtn').onclick=()=>selectDay(todayIdx());
 $('prev').onclick=()=>selectDay(sel-1);
 $('next').onclick=()=>selectDay(sel+1);
-let nt;
-$('note').addEventListener('input',e=>{
-  const k=K(addD(start,sel)),v=e.target.value;
-  if(v.trim())S.notes[k]=v;else delete S.notes[k];
-  clearTimeout(nt);nt=setTimeout(()=>{save();renderNotes();
-    const c=document.querySelector('.c[data-i="'+sel+'"]');if(c)c.classList.toggle('n',!!S.notes[k]);},300);
-});
 function goToDay(i){showTab('cal',true);selectDay(i);}
 
 /* ---------- События ---------- */
@@ -680,7 +725,7 @@ function openEvent(m){
   $('hEv').textContent=m.t;
   $('evMeta').textContent=fd(m.date)+', день '+(dayDiff(start,m.date)+1)+' из '+totalDays;
   $('evCount').textContent=diff===0?'Сегодня':nf.format(Math.abs(diff));
-  $('evCountCap').textContent=diff===0?'':diff>0?pl(diff,'день','дня','дней')+' осталось':pl(-diff,'день','дня','дней')+' назад';
+  $('evCountCap').textContent=diff===0?'':diff>0?pl(diff,'день','дня','дней')+(isOne(diff)?' остался':' осталось'):pl(-diff,'день','дня','дней')+' назад';
   $('evDesc').textContent=m.desc||'';
   $('evOrigin').hidden=!m.origin;$('evOriginT').textContent=m.origin||'';
   $('evDel').hidden=!m.id;$('evDel').classList.remove('armed');$('evDel').textContent='Удалить событие';
@@ -707,44 +752,21 @@ $('evAdd').onclick=()=>{
   toast('Событие добавлено');
 };
 
-/* ---------- Заметки ---------- */
-function renderNotes(){
-  const ks=Object.keys(S.notes).sort().reverse();
-  $('notesEmpty').hidden=!!ks.length;
-  const ul=$('notes');ul.innerHTML='';
-  ks.forEach(k=>{const d=P(k),li=document.createElement('li'),b=document.createElement('button');
-    const sm=document.createElement('small');sm.textContent=fd(d)+', день '+(dayDiff(start,d)+1);
-    const tx=document.createElement('span');tx.textContent=S.notes[k];
-    b.append(sm,tx);b.onclick=()=>goToDay(dayDiff(start,d));
-    li.appendChild(b);ul.appendChild(li);});
-}
-$('noteToday').onclick=()=>{
-  const i=Math.min(Math.max(dayDiff(start,new Date()),0),totalDays-1);
-  goToDay(i);setTimeout(()=>$('note').focus(),reduced?0:200);
-};
-
 /* ---------- Управление ---------- */
 document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{if(S.unit===b.dataset.u)return;S.unit=b.dataset.u;save();movePill();intro=false;tick();swapHero();});
 $('big').onclick=()=>{S.mode=S.mode==='left'?'done':'left';save();intro=false;tick();swapHero();};
 $('themeBtn').onclick=()=>{S.theme=S.theme===null?'light':S.theme==='light'?'dark':null;save();applyTheme();};
 
 $('setBtn').onclick=()=>{$('inS').value=S.start;$('inE').value=S.end;$('datesErr').textContent='';
-  $('resetAll').classList.remove('armed');$('resetAll').textContent='Сбросить всё: даты, события и заметки';openSheet($('dlgDates'));};
+  $('resetAll').classList.remove('armed');$('resetAll').textContent='Сбросить всё: даты и события';openSheet($('dlgDates'));};
 $('datesSave').onclick=()=>{
   const s=$('inS').value,e=$('inE').value;
   if(!s||!e||P(e)<=P(s)){$('datesErr').textContent='Дата дембеля должна быть позже даты начала службы';return;}
-  S.start=s;S.end=e;save();closeSheet($('dlgDates'));setup();swapHero();toast('Даты сохранены');
+  S.start=s;S.end=e;save();closeSheet($('dlgDates'));setup();swapHero();capPlay(0,lastPct,1400);toast('Даты сохранены');
 };
 $('resetAll').onclick=()=>{const b=$('resetAll');
   if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Нажми ещё раз: всё будет удалено';return;}
   S=clone(DEF);save();applyTheme();closeSheet($('dlgDates'));setup();showTab('timer',false);swapHero();toast('Всё сброшено');};
-
-$('shareBtn').onclick=async()=>{
-  const now=new Date(),total=end-start,done=Math.min(Math.max(now-start,0),total);
-  const dd=Math.floor(done/DAY),ld=Math.ceil((total-done)/DAY);
-  const txt='Отслужил '+dn(dd)+' из '+(totalDays-1)+' ('+(done/total*100).toFixed(1).replace('.',',')+' %). До дома '+dn(ld)+'.';
-  try{await navigator.clipboard.writeText(txt);toast('Скопировано');}catch(e){toast(txt);}
-};
 
 /* ---------- Резервная копия ---------- */
 $('exportBtn').onclick=async()=>{
