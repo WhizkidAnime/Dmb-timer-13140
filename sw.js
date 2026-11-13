@@ -1,12 +1,12 @@
 // Офлайн-кэш ДМБ-таймера. При изменении файлов увеличь номер версии.
-const CACHE = 'dmb-v1';
+const CACHE = 'dmb-v2';
 const CORE = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/apple-touch-icon.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', e => {

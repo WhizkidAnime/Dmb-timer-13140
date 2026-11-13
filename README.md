@@ -8,11 +8,13 @@
 index.html              приложение
 manifest.webmanifest    описание веб-приложения (имя, иконки)
 sw.js                   офлайн-режим
-icons/                  иконки для экрана «Домой»
+apple-touch-icon.png,
+icon-192.png, icon-512.png,
+icon-maskable-512.png   иконки для экрана «Домой»
 .nojekyll               отключает обработку Jekyll на GitHub Pages
 ```
 
-Все файлы должны лежать в корне репозитория, папка `icons` — рядом с `index.html`.
+Все файлы лежат в корне репозитория, без папок.
 
 ## Публикация на GitHub Pages
 
