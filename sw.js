@@ -1,5 +1,5 @@
 // Офлайн-кэш ДМБ-таймера. При изменении файлов увеличь номер версии.
-const CACHE = 'dmb-v8';
+const CACHE = 'dmb-v9';
 const CORE = [
   './',
   './index.html',
@@ -10,7 +10,11 @@ const CORE = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then(c => Promise.all(CORE.map(u => c.add(new Request(u, { cache: 'reload' })))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', e => {
@@ -26,10 +30,13 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
+  // Проверка обновлений из приложения: всегда в сеть, мимо кэша
+  if (url.searchParams.has('_chk')) return;
+
   // Страница: сначала сеть (чтобы подтягивались обновления), без сети — кэш
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-cache' })
         .then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put('./index.html', copy)); return res; })
         .catch(() => caches.match('./index.html'))
     );

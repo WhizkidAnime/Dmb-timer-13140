@@ -311,10 +311,37 @@ html.locked .panel,html.locked .scroll{overflow:hidden!important}
     <button class="danger" id="evDel" hidden>Удалить событие</button>
 </dialog>
 
+<!-- Обновление -->
+<dialog class="sheet" id="dlgUpd" aria-labelledby="hUpd">
+  <div class="grab"></div>
+  <h3 id="hUpd" tabindex="-1">Вышло обновление</h3>
+  <div class="desc">Новая версия приложения готова. Нажми «Обновить», чтобы применить её. Даты и события сохранятся.</div>
+  <div class="drow">
+    <button class="btn" id="updOk">Обновить</button>
+    <button class="btn ghost" data-close>Позже</button>
+  </div>
+</dialog>
+
 <div class="toast" id="toast" role="status"></div>
 
 <script>
 (function(){
+/* ---------- Подпись версии (для проверки обновлений) ---------- */
+const SELF=document.currentScript;
+function hash32(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36)+':'+str.length;}
+function sigOf(doc,own){
+  const css=[...doc.querySelectorAll('style')].map(x=>x.textContent).join('\n');
+  const body=doc.body.cloneNode(true);
+  const inl=[...body.querySelectorAll('script:not([src])')].pop();
+  if(!inl)return null;
+  const code=own?own.textContent:inl.textContent;
+  while(inl.nextSibling)inl.parentNode.removeChild(inl.nextSibling);
+  inl.parentNode.removeChild(inl);
+  return hash32(css+'\u0001'+body.innerHTML+'\u0001'+code);
+}
+let LOCAL_SIG=null;
+try{LOCAL_SIG=sigOf(document,SELF);}catch(e){}
+
 const DAY=864e5, KEY='dmb:v1';
 const DEF={start:'2026-04-24',end:'2027-04-23',events:[],unit:'days',mode:'left',theme:null,filter:'all',tab:'timer'};
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -673,6 +700,44 @@ $('importFile').onchange=async e=>{
 
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400);}
 
+/* ---------- Обновления ---------- */
+let lastChk=0,updShown=false,pendingSig=null,dismissedSig=null;
+async function checkUpdate(force){
+  if(!LOCAL_SIG||updShown||navigator.onLine===false)return;
+  const now=Date.now();
+  if(!force&&now-lastChk<10000)return;
+  lastChk=now;
+  try{
+    const u=new URL('index.html',location.href);u.searchParams.set('_chk',now);
+    const r=await fetch(u.href,{cache:'no-store'});
+    if(!r.ok)return;
+    const doc=new DOMParser().parseFromString(await r.text(),'text/html');
+    if(!doc.querySelector('meta[name="apple-mobile-web-app-title"]'))return;   // это не наше приложение
+    const sig=sigOf(doc,null);
+    if(!sig||sig===LOCAL_SIG||sig===dismissedSig)return;
+    showUpdate(sig);
+  }catch(e){}
+}
+function showUpdate(sig){
+  updShown=true;pendingSig=sig;
+  if(document.querySelector('dialog[open]')){setTimeout(()=>showUpdate(sig),3000);return;}  // не перебиваем другое окно
+  openSheet($('dlgUpd'));
+}
+$('dlgUpd').addEventListener('close',()=>{updShown=false;dismissedSig=pendingSig;});
+$('updOk').onclick=async()=>{
+  const b=$('updOk');b.disabled=true;b.textContent='Обновляю…';
+  try{
+    const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();
+    if(reg)await Promise.race([reg.update(),new Promise(r=>setTimeout(r,2500))]);
+  }catch(e){}
+  location.reload();
+};
+addEventListener('load',()=>setTimeout(()=>checkUpdate(true),2500));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate();});
+addEventListener('pageshow',e=>{if(e.persisted)checkUpdate(true);});
+addEventListener('online',()=>checkUpdate(true));
+setInterval(()=>checkUpdate(),10*60*1000);
+
 // Если окно просмотра не сообщает свою высоту, задаём её по экрану устройства
 function fitHeight(){
   const app=document.querySelector('.app');
@@ -693,7 +758,7 @@ setInterval(tick,1000);
 // Пересчёт после возврата в приложение (iOS замораживает таймеры в фоне)
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();fitHeight();}});
 // Офлайн-режим
-if('serviceWorker' in navigator&&location.protocol==='https:'){
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
   addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
 })();
