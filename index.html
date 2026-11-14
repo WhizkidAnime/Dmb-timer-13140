@@ -57,15 +57,15 @@ main{flex:1;min-height:0;position:relative}
 .hero{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
 .big{font-family:var(--display);font-weight:700;line-height:.9;letter-spacing:-.03em;
   font-size:min(9rem, 19vh, calc(min(92vw,520px) / (var(--len,3) * .86)));
-  background:none;border:0;padding:0;cursor:pointer;display:block;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+  background:none;border:0;padding:0;cursor:pointer;display:block;max-width:100%;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
 .cap{font-size:19px;font-weight:500;margin-top:12px}
 .clock{font-size:19px;color:var(--mute);font-variant-numeric:tabular-nums;min-height:1.45em}
 
-.seg{position:relative;display:flex;width:100%;border:1px solid var(--line);border-radius:999px;padding:3px;flex:none}
+/* Пять единиц измерения: столбцы под длину слов, без обрезания на узком iPhone. */
+.seg{position:relative;display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.08fr) minmax(0,1.18fr) minmax(0,.86fr) minmax(0,1.3fr);width:100%;border:1px solid var(--line);border-radius:999px;padding:3px;flex:none}
 .seg .pill{position:absolute;top:3px;bottom:3px;left:0;width:0;border-radius:999px;background:var(--fg);transition:transform .38s var(--ease),width .38s var(--ease)}
-.seg button{position:relative;z-index:1;flex:1 1 0;min-width:0;background:none;border:0;border-radius:999px;padding:7px 2px;font-size:14px;cursor:pointer;color:var(--mute);transition:color .3s;white-space:nowrap}
+.seg button{position:relative;z-index:1;min-width:0;width:100%;min-height:38px;background:none;border:0;border-radius:999px;padding:7px 0;font-size:clamp(11px,3.4vw,14px);line-height:1.2;text-align:center;letter-spacing:-.02em;cursor:pointer;color:var(--mute);transition:color .3s;white-space:nowrap}
 .seg button[aria-pressed="true"]{color:var(--bg)}
-@media (max-width:380px){.seg button{font-size:13px}}
 
 .nextcard{flex:none;display:block;width:100%;text-align:left;background:var(--soft);border:0;border-radius:14px;padding:12px 16px;cursor:pointer}
 .nextcard small{display:block;color:var(--mute);font-size:13px;margin-bottom:2px}
@@ -74,7 +74,7 @@ main{flex:1;min-height:0;position:relative}
 .nextcard .r{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:14px;flex:none}
 
 .prog{flex:none}
-.pct{font-family:var(--display);font-weight:500;font-size:22px;font-variant-numeric:tabular-nums;margin-bottom:10px;letter-spacing:-.02em}
+.pct{font-family:var(--display);font-weight:500;font-size:clamp(18px,5.3vw,22px);font-variant-numeric:tabular-nums;margin-bottom:10px;letter-spacing:-.02em;white-space:nowrap}
 .prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:8px;font-size:14px}
 
 /* События */
@@ -142,6 +142,9 @@ dialog.sheet.closing::backdrop{animation:fadeOut .26s ease-in forwards}
 .sheet .origin{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);line-height:1.55}
 .sheet .olab{font-size:13px;color:var(--mute);margin-bottom:4px}
 .drow{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+/* В окне дат обе пары кнопок идут друг под другом и имеют одну ширину. */
+#dlgDates .drow{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+#dlgDates .drow .btn{display:block;width:100%;height:48px;padding:0 16px;white-space:nowrap}
 .danger{background:none;border:0;padding:0;margin-top:20px;color:var(--mute);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:14px}
 .danger.armed{color:var(--fg);font-weight:600}
 .err{font-size:13px;margin-top:10px;min-height:1.2em}
@@ -262,7 +265,6 @@ html.locked .panel,html.locked .scroll{overflow:hidden!important}
 
 <!-- Даты -->
 <dialog class="sheet" id="dlgDates" aria-labelledby="hDates">
-  <div class="grab"></div>
   <div class="shead"><h3 id="hDates" tabindex="-1">Даты службы</h3><button class="sx" data-close aria-label="Закрыть"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
   <label for="inS">Начало службы</label>
   <input type="date" id="inS">
@@ -382,7 +384,7 @@ function showTab(t,animate){
   TABS.forEach(x=>{$('p-'+x).hidden=x!==t;});
   document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
   $('ind').style.transform='translateX('+(i*100)+'%)';
-  if(t==='timer')requestAnimationFrame(()=>{movePill();capLayout();});
+  if(t==='timer')requestAnimationFrame(()=>{movePill();fitBig();capLayout();});
   if(animate&&dir)animIn($('p-'+t),{transform:'translate3d('+(dir*28)+'px,0,0)'},340);
 }
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{if(b.dataset.t!==S.tab)showTab(b.dataset.t,true);});
@@ -511,7 +513,23 @@ function heroValues(now){
     return{txt:nf.format(n),cap:pl(n,'час','часа','часов')+tail,clock:'и '+p2(Math.floor(v%36e5/6e4))+':'+p2(Math.floor(v%6e4/1e3))};}
   return{txt:(v/total*100).toFixed(1).replace('.',',')+'%',cap:S.mode==='left'?'службы осталось':'службы позади',clock:''};
 }
-function setBig(txt){const b=$('big');if(b.textContent===txt)return;b.textContent=txt;b.style.setProperty('--len',Math.max(txt.length,2));}
+// Проверяем реальную ширину надписи (включая %, пробелы и загруженный шрифт).
+// Расчёт только по числу символов недостаточно точен на разных iPhone.
+function fitBig(){
+  const b=$('big');if(!b.textContent||!b.parentElement.clientWidth)return;
+  b.style.fontSize=''; // сначала пробуем исходный размер из CSS
+  const r=document.createRange();r.selectNodeContents(b);
+  const textWidth=r.getBoundingClientRect().width;
+  const available=b.parentElement.clientWidth-2;
+  if(textWidth>available){
+    const base=parseFloat(getComputedStyle(b).fontSize);
+    b.style.fontSize=(base*available/textWidth).toFixed(2)+'px';
+  }
+}
+function setBig(txt){
+  const b=$('big');if(b.textContent===txt)return;
+  b.textContent=txt;b.style.setProperty('--len',Math.max(txt.length,2));fitBig();
+}
 
 /* ---------- Жидкая капсула ---------- */
 const CAP_H=36,CAP_PAD=2.8,CAP_AMP=4.7;
@@ -743,7 +761,7 @@ function fitHeight(){
   const app=document.querySelector('.app');
   if(window.innerHeight<400){app.style.height=Math.max((screen.height||700)-160,500)+'px';}
   else app.style.height='';
-  movePill();
+  movePill();fitBig();
 }
 addEventListener('resize',fitHeight);
 fitHeight();
@@ -752,7 +770,7 @@ applyTheme();
 if(!TABS.includes(S.tab))S.tab='timer';
 showTab(S.tab,false);
 setup();
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{movePill();fitBig();});
 runIntro();
 setInterval(tick,1000);
 // Пересчёт после возврата в приложение (iOS замораживает таймеры в фоне)
