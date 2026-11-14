@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ДМБ</title>
-<meta name="description" content="Таймер до дембеля: сколько осталось, армейские даты, календарь службы и события">
+<meta name="description" content="Таймер до дембеля: сколько осталось, армейские даты и свои события">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ДМБ">
@@ -67,43 +67,15 @@ main{flex:1;min-height:0;position:relative}
 .seg button[aria-pressed="true"]{color:var(--bg)}
 @media (max-width:380px){.seg button{font-size:13px}}
 
-.nextcard{flex:none;display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;background:var(--soft);border:0;border-radius:14px;padding:12px 16px;cursor:pointer}
-.nextcard small{display:block;color:var(--mute);font-size:13px}
-.nextcard strong{font-weight:600}
-.nextcard .r{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:14px}
+.nextcard{flex:none;display:block;width:100%;text-align:left;background:var(--soft);border:0;border-radius:14px;padding:12px 16px;cursor:pointer}
+.nextcard small{display:block;color:var(--mute);font-size:13px;margin-bottom:2px}
+.nextcard .nrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.nextcard strong{font-weight:600;min-width:0}
+.nextcard .r{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:14px;flex:none}
 
 .prog{flex:none}
 .pct{font-family:var(--display);font-weight:500;font-size:22px;font-variant-numeric:tabular-nums;margin-bottom:10px;letter-spacing:-.02em}
 .prow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:8px;font-size:14px}
-
-/* Календарь */
-.grid{display:grid;grid-template-columns:2.4rem repeat(31,1fr);gap:2px;align-items:center;flex:none}
-.ml{font-size:11px;color:var(--mute)}
-.c{aspect-ratio:1;border:0;padding:0;border-radius:2px;background:var(--cell);cursor:pointer;position:relative;transition:transform .25s var(--ease)}
-.c.x{background:none;cursor:default}
-.c.on{background:var(--fg)}
-.c.today{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--fg)}
-.c.ms:not(.on):not(.today){box-shadow:inset 0 0 0 1px var(--mute)}
-.c.sel{transform:scale(1.45);z-index:2;outline:1.5px solid var(--fg);outline-offset:1px}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--mute);margin-top:10px;flex-wrap:wrap;flex:none}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.legend b{width:10px;height:10px;border-radius:2px;display:inline-block;background:var(--cell)}
-.legend b.on{background:var(--fg)}
-.legend b.t{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--fg)}
-.legend b.m{box-shadow:inset 0 0 0 1px var(--mute)}
-.day{margin-top:14px;background:var(--soft);border-radius:14px;padding:14px;flex:none}
-.dayhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.dayhead strong{font-weight:600}
-.dayrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px;min-height:32px}
-.dtag{font-size:13px;min-height:1.2em;flex:1;min-width:0}
-.todaybtn{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500;cursor:pointer;
-  opacity:0;transform:translate3d(8px,0,0);pointer-events:none;transition:opacity .25s,transform .35s var(--ease),border-color .2s}
-.todaybtn.show{opacity:1;transform:none;pointer-events:auto}
-.todaybtn:active{transform:scale(.95)}
-.todaybtn i{width:8px;height:8px;border-radius:50%;background:var(--fg);display:block}
-.nav{display:flex;gap:4px;flex-shrink:0}
-.nav button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:16px;transition:transform .15s}
-.nav button:active{transform:scale(.9)}
 
 /* События */
 #p-events{overflow:hidden}
@@ -126,7 +98,7 @@ ol.tl{list-style:none;margin:0;padding:0}
 .tl li.flash{animation:flash 1.4s var(--ease)}
 .empty{color:var(--mute);font-size:15px;padding:16px 0;line-height:1.5}
 
-.btn{border:0;background:var(--fg);color:var(--bg);border-radius:12px;padding:11px 16px;font-weight:500;cursor:pointer;font-size:15px;transition:transform .15s}
+.btn{border:0;background:var(--fg);color:var(--bg);border-radius:999px;padding:12px 20px;font-weight:500;cursor:pointer;font-size:15px;transition:transform .15s}
 .btn.ghost{background:none;color:var(--fg);border:1px solid var(--line)}
 .btn.wide{width:100%;flex:none;margin-top:12px}
 input[type=text],input[type=date]{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:15px;width:100%;min-width:0}
@@ -141,7 +113,7 @@ nav.tabs{position:absolute;left:14px;right:14px;bottom:10px;z-index:5;display:fl
 @supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   nav.tabs{background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}
 }
-nav.tabs .ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px) / 3);border-radius:999px;background:var(--glass-sel);
+nav.tabs .ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px) / 2);border-radius:999px;background:var(--glass-sel);
   box-shadow:inset 0 0 0 1px var(--glass-edge);transition:transform .45s var(--ease)}
 nav.tabs button{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:8px 0 7px;font-size:12px;color:var(--mute);cursor:pointer;transition:color .25s}
 nav.tabs button[aria-selected="true"]{color:var(--fg);font-weight:600}
@@ -200,16 +172,19 @@ dialog.sheet.closing::backdrop{animation:fadeOut .26s ease-in forwards}
 /* iOS и веб-приложение */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{overscroll-behavior:none}
-button,.chip,.c,nav.tabs button{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button,.chip,nav.tabs button{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 textarea,input[type=text],input[type=date]{font-size:16px}
 input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;text-align:left}
 .backup{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
 .backup p{margin:0 0 10px;font-size:14px;color:var(--mute)}
-.sheet label.opt{display:flex;align-items:center;gap:10px;margin:12px 0 0;color:var(--fg);font-size:15px}
-.sheet label.opt input{width:20px;height:20px;accent-color:var(--fg);flex:none;margin:0}
-input[type=time]{-webkit-appearance:none;appearance:none;min-height:44px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:16px;width:100%;text-align:left}
-.notif-st{margin-top:12px;line-height:1.5}
-textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
+.shead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.sx{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;display:grid;place-items:center;margin:-4px -4px 0 0;transition:transform .15s,border-color .2s}
+.sx:hover{border-color:var(--fg)}
+.sx:active{transform:scale(.92)}
+.sx svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+dialog.sheet{overscroll-behavior:contain}
+html.locked,html.locked body{overflow:hidden}
+html.locked .panel,html.locked .scroll{overflow:hidden!important}
 </style>
 </head>
 <body>
@@ -263,30 +238,6 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
       </div>
     </div>
 
-    <!-- Календарь -->
-    <div class="panel" id="p-cal" role="tabpanel" hidden>
-      <div class="ptitle">Вся служба по дням</div>
-      <div class="grid" id="grid"></div>
-      <div class="legend">
-        <span><b class="on"></b>Позади</span>
-        <span><b class="t"></b>Сегодня</span>
-        <span><b class="m"></b>Событие</span>
-        <span><b></b>Впереди</span>
-      </div>
-      <div class="day" id="day">
-        <div id="dayIn">
-          <div class="dayhead">
-            <div><strong id="dTitle"></strong><div class="muted" id="dSub" style="font-size:14px"></div></div>
-            <div class="nav"><button id="prev" aria-label="Предыдущий день">‹</button><button id="next" aria-label="Следующий день">›</button></div>
-          </div>
-          <div class="dayrow">
-          <div class="dtag" id="dTag"></div>
-          <button class="todaybtn" id="todayBtn" tabindex="-1" aria-hidden="true"><i></i>Сегодня</button>
-        </div>
-        </div>
-      </div>
-    </div>
-
     <!-- События -->
     <div class="panel" id="p-events" role="tabpanel" hidden>
       <div class="ptitle">События</div>
@@ -305,7 +256,6 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
   <nav class="tabs" role="tablist" id="tabs">
     <span class="ind" id="ind"></span>
     <button role="tab" data-t="timer"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg>Таймер</button>
-    <button role="tab" data-t="cal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/></svg>Календарь</button>
     <button role="tab" data-t="events"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>События</button>
   </nav>
 </div>
@@ -313,7 +263,7 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
 <!-- Даты -->
 <dialog class="sheet" id="dlgDates" aria-labelledby="hDates">
   <div class="grab"></div>
-  <h3 id="hDates" tabindex="-1">Даты службы</h3>
+  <div class="shead"><h3 id="hDates" tabindex="-1">Даты службы</h3><button class="sx" data-close aria-label="Закрыть"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
   <label for="inS">Начало службы</label>
   <input type="date" id="inS">
   <label for="inE">Дата дембеля</label>
@@ -323,7 +273,6 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
     <button class="btn" id="datesSave">Сохранить</button>
     <button class="btn ghost" data-close>Отмена</button>
   </div>
-  <button class="btn ghost wide" id="notifBtn" style="margin-top:18px">Уведомления</button>
   <div class="backup">
     <p>Данные хранятся только на этом устройстве. Сохрани копию, чтобы не потерять события.</p>
     <div class="drow" style="margin-top:0">
@@ -338,7 +287,7 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
 <!-- Новое событие -->
 <dialog class="sheet" id="dlgAdd" aria-labelledby="hAdd">
   <div class="grab"></div>
-  <h3 id="hAdd" tabindex="-1">Своё событие</h3>
+  <div class="shead"><h3 id="hAdd" tabindex="-1">Своё событие</h3><button class="sx" data-close aria-label="Закрыть"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
   <label for="evT">Название</label>
   <input type="text" id="evT" placeholder="Например, присяга или отпуск" maxlength="60">
   <label for="evD">Дата</label>
@@ -353,40 +302,13 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
 <!-- Карточка события -->
 <dialog class="sheet" id="dlgEv" aria-labelledby="hEv">
   <div class="grab"></div>
-  <h3 id="hEv" tabindex="-1"></h3>
+  <div class="shead"><h3 id="hEv" tabindex="-1"></h3><button class="sx" data-close aria-label="Закрыть"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div>
   <div class="meta" id="evMeta"></div>
   <div class="count" id="evCount"></div>
   <div class="muted" id="evCountCap"></div>
   <div class="desc" id="evDesc"></div>
   <div class="origin" id="evOrigin" hidden><div class="olab">Откуда название</div><div id="evOriginT"></div></div>
-  <div class="drow">
-    <button class="btn" id="evToDay">Открыть день</button>
-    <button class="btn ghost" data-close>Закрыть</button>
-  </div>
-  <button class="danger" id="evDel" hidden>Удалить событие</button>
-</dialog>
-
-<!-- Уведомления -->
-<dialog class="sheet" id="dlgNotif" aria-labelledby="hNotif">
-  <div class="grab"></div>
-  <h3 id="hNotif" tabindex="-1">Уведомления</h3>
-  <div class="notif-st" id="nStatus"></div>
-  <div class="drow"><button class="btn" id="nOn" hidden>Включить уведомления</button></div>
-  <div id="nOpts" hidden>
-    <label for="nTime">Время уведомления</label>
-    <input type="time" id="nTime">
-    <label class="opt"><input type="checkbox" id="nBefore">Напоминать накануне</label>
-    <label class="opt"><input type="checkbox" id="nDaily">Каждый день: сколько осталось</label>
-    <div class="drow">
-      <button class="btn" id="nCopy">Скопировать настройки</button>
-      <button class="btn ghost" id="nTest">Тестовое уведомление</button>
-    </div>
-    <p class="muted" style="font-size:14px;margin:14px 0 0;line-height:1.5">Вставь скопированный текст в секрет DMB_CONFIG на GitHub. После смены дат, событий или этих настроек скопируй их заново. Подробнее в README.</p>
-    <button class="danger" id="nOff">Отключить уведомления</button>
-  </div>
-  <textarea class="cfg" id="nTa" readonly hidden></textarea>
-  <div class="err" id="nErr"></div>
-  <div class="drow"><button class="btn ghost" data-close>Закрыть</button></div>
+    <button class="danger" id="evDel" hidden>Удалить событие</button>
 </dialog>
 
 <div class="toast" id="toast" role="status"></div>
@@ -394,7 +316,7 @@ textarea.cfg{min-height:90px;flex:none;font-size:13px;margin-top:10px}
 <script>
 (function(){
 const DAY=864e5, KEY='dmb:v1';
-const DEF={start:'2026-04-24',end:'2027-04-23',events:[],unit:'days',mode:'left',theme:null,filter:'all',tab:'timer',notif:{time:'09:00',before:false,daily:false}};
+const DEF={start:'2026-04-24',end:'2027-04-23',events:[],unit:'days',mode:'left',theme:null,filter:'all',tab:'timer'};
 const clone=o=>JSON.parse(JSON.stringify(o));
 function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(clone(DEF),JSON.parse(r));}catch(e){}return clone(DEF);}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -418,7 +340,7 @@ const fd=d=>d.getDate()+' '+MG[d.getMonth()]+' '+d.getFullYear();
 const p2=n=>String(n).padStart(2,'0');
 const rel=diff=>diff===0?'сегодня':diff<0?dn(-diff)+' назад':'через '+dn(diff);
 
-let start,end,totalDays,sel=0,lastDayKey='',showPast=false,intro=!reduced,MSL=[];
+let start,end,totalDays,lastDayKey='',showPast=false,intro=!reduced,MSL=[];
 
 /* ---------- Анимации ---------- */
 function animIn(el,from,dur){if(reduced||!el.animate)return;
@@ -426,7 +348,7 @@ function animIn(el,from,dur){if(reduced||!el.animate)return;
 function swapHero(){animIn($('big'),{transform:'translate3d(0,14px,0)'});animIn($('cap'),{transform:'translate3d(0,8px,0)'});animIn($('clock'),{transform:'translate3d(0,8px,0)'});}
 
 /* ---------- Вкладки ---------- */
-const TABS=['timer','cal','events'];
+const TABS=['timer','events'];
 function showTab(t,animate){
   const prev=S.tab, i=TABS.indexOf(t), dir=Math.sign(i-TABS.indexOf(prev));
   S.tab=t;save();
@@ -449,7 +371,12 @@ $('main').addEventListener('touchend',e=>{
   const i=TABS.indexOf(S.tab)+(dx<0?1:-1);if(i>=0&&i<TABS.length)showTab(TABS[i],true);},{passive:true});
 
 /* ---------- Листы ---------- */
-function openSheet(d){d.classList.remove('closing');d.showModal();d.querySelector('h3').focus({preventScroll:true});}
+function lockBg(on){
+  document.documentElement.classList.toggle('locked',on);
+  const a=document.querySelector('.app');
+  if(on)a.setAttribute('inert','');else a.removeAttribute('inert');
+}
+function openSheet(d){d.classList.remove('closing');lockBg(true);d.showModal();d.querySelector('h3').focus({preventScroll:true});}
 function closeSheet(d){
   if(!d.open||d.classList.contains('closing'))return;
   if(reduced){d.close();return;}
@@ -458,6 +385,13 @@ function closeSheet(d){
 }
 document.querySelectorAll('dialog.sheet').forEach(d=>{
   d.addEventListener('cancel',e=>{e.preventDefault();closeSheet(d);});
+  d.addEventListener('close',()=>lockBg(false));
+  // жест по затемнённому фону не должен прокручивать страницу под окном
+  d.addEventListener('touchmove',e=>{
+    if(e.target!==d)return;
+    const r=d.getBoundingClientRect(),t=e.touches[0];
+    if(t.clientX<r.left||t.clientX>r.right||t.clientY<r.top||t.clientY>r.bottom)e.preventDefault();
+  },{passive:false});
   d.addEventListener('click',e=>{if(e.target===d)closeSheet(d);});
   d.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeSheet(d));
 });
@@ -531,9 +465,8 @@ function milestones(){
 function setup(){
   start=P(S.start);end=P(S.end);totalDays=dayDiff(start,end)+1;
   $('sd').textContent=fd(start);$('ed').textContent=fd(end);
-  sel=Math.min(Math.max(dayDiff(start,new Date()),0),totalDays-1);
   MSL=milestones();lastDayKey='';
-  buildGrid();renderDay(0);renderTL(false);renderChips();tick();movePill();
+  renderTL(false);renderChips();tick();movePill();
 }
 
 function heroValues(now){
@@ -614,7 +547,7 @@ function tick(){
   capUpdate(pct);
   {const n=Math.floor(done/DAY);$('served').textContent=proshlo(n)+' '+dn(n);}
   {const n=Math.ceil(left/DAY);$('leftd').textContent=ostalos(n)+' '+dn(n);}
-  const k=K(now);if(k!==lastDayKey){if(lastDayKey){buildGrid();renderTL(false);updateTodayBtn();}lastDayKey=k;renderNext();}
+  const k=K(now);if(k!==lastDayKey){if(lastDayKey){renderTL(false);}lastDayKey=k;renderNext();}
 }
 
 function runIntro(){
@@ -630,63 +563,12 @@ function renderNext(){
   const now=new Date(),n=MSL.find(m=>dayDiff(now,m.date)>=0),c=$('nextCard');
   if(!n){c.hidden=true;return;}
   c.hidden=false;c.innerHTML='';
-  const l=document.createElement('div');
   const sm=document.createElement('small');sm.textContent='Следующее событие';
+  const row=document.createElement('div');row.className='nrow';
   const st=document.createElement('strong');st.textContent=n.t;
-  l.append(sm,st);
-  const r=document.createElement('div');r.className='r';r.textContent=rel(dayDiff(now,n.date));
-  c.append(l,r);c.onclick=()=>openEvent(n);
+  const r=document.createElement('span');r.className='r';r.textContent=rel(dayDiff(now,n.date));
+  row.append(st,r);c.append(sm,row);c.onclick=()=>openEvent(n);
 }
-
-/* ---------- Календарь ---------- */
-function buildGrid(){
-  const g=$('grid');g.innerHTML='';
-  const ti=dayDiff(start,new Date());
-  const msKeys=new Set(MSL.filter(m=>m.kind!=='month').map(m=>K(m.date)));
-  let m=new Date(start.getFullYear(),start.getMonth(),1);
-  const first=+m,frag=document.createDocumentFragment();
-  while(m<=end){
-    const lab=document.createElement('div');lab.className='ml';
-    lab.textContent=MS[m.getMonth()]+(m.getMonth()===0||+m===first?' ’'+String(m.getFullYear()).slice(2):'');
-    frag.appendChild(lab);
-    for(let d=1;d<=31;d++){
-      const date=new Date(m.getFullYear(),m.getMonth(),d),c=document.createElement('button');c.className='c';
-      if(date.getMonth()!==m.getMonth()||date<start||date>end){c.classList.add('x');c.tabIndex=-1;c.setAttribute('aria-hidden','true');frag.appendChild(c);continue;}
-      const i=dayDiff(start,date);c.dataset.i=i;
-      if(i<ti)c.classList.add('on');else if(i===ti)c.classList.add('today');
-      if(msKeys.has(K(date)))c.classList.add('ms');
-      if(i===sel)c.classList.add('sel');
-      c.setAttribute('aria-label',fd(date));
-      frag.appendChild(c);
-    }
-    m=new Date(m.getFullYear(),m.getMonth()+1,1);
-  }
-  g.appendChild(frag);
-}
-$('grid').addEventListener('click',e=>{const c=e.target.closest('.c:not(.x)');if(c)selectDay(+c.dataset.i);});
-function selectDay(i){
-  const prev=sel;sel=Math.min(Math.max(i,0),totalDays-1);
-  document.querySelectorAll('.c.sel').forEach(c=>c.classList.remove('sel'));
-  const c=document.querySelector('.c[data-i="'+sel+'"]');if(c)c.classList.add('sel');
-  renderDay(Math.sign(sel-prev));
-}
-function todayIdx(){return Math.min(Math.max(dayDiff(start,new Date()),0),totalDays-1);}
-function updateTodayBtn(){
-  const show=sel!==todayIdx(),b=$('todayBtn');
-  b.classList.toggle('show',show);b.tabIndex=show?0:-1;b.setAttribute('aria-hidden',show?'false':'true');
-}
-function renderDay(dir){
-  const d=addD(start,sel),diff=dayDiff(new Date(),d);
-  $('dTitle').textContent='День '+(sel+1)+' из '+totalDays;
-  $('dSub').textContent=fd(d)+', '+rel(diff);
-  $('dTag').textContent=MSL.filter(m=>K(m.date)===K(d)).map(m=>m.t).join(', ');
-  if(dir)animIn($('dayIn'),{transform:'translate3d('+(dir*16)+'px,0,0)'});
-  updateTodayBtn();
-}
-$('todayBtn').onclick=()=>selectDay(todayIdx());
-$('prev').onclick=()=>selectDay(sel-1);
-$('next').onclick=()=>selectDay(sel+1);
-function goToDay(i){showTab('cal',true);selectDay(i);}
 
 /* ---------- События ---------- */
 function renderChips(){document.querySelectorAll('#chips .chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.f===S.filter));}
@@ -731,10 +613,9 @@ function openEvent(m){
   $('evDel').hidden=!m.id;$('evDel').classList.remove('armed');$('evDel').textContent='Удалить событие';
   openSheet($('dlgEv'));
 }
-$('evToDay').onclick=()=>{const i=dayDiff(start,curEv.date);closeSheet($('dlgEv'));goToDay(i);};
 $('evDel').onclick=()=>{const b=$('evDel');
   if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Нажми ещё раз, чтобы удалить';return;}
-  S.events=S.events.filter(e=>e.id!==curEv.id);save();MSL=milestones();buildGrid();renderTL(false);renderNext();renderDay(0);
+  S.events=S.events.filter(e=>e.id!==curEv.id);save();MSL=milestones();renderTL(false);renderNext();
   closeSheet($('dlgEv'));toast('Событие удалено');};
 
 $('addBtn').onclick=()=>{$('evT').value='';$('evD').value='';$('addErr').textContent='';openSheet($('dlgAdd'));};
@@ -748,7 +629,7 @@ $('evAdd').onclick=()=>{
   if(dayDiff(new Date(),P(d))<0)showPast=true;
   closeSheet($('dlgAdd'));
   if(S.tab!=='events')showTab('events',true);
-  buildGrid();renderTL(false,id);renderNext();renderDay(0);
+  renderTL(false,id);renderNext();
   toast('Событие добавлено');
 };
 
@@ -789,81 +670,6 @@ $('importFile').onchange=async e=>{
     S=Object.assign(clone(DEF),st);save();applyTheme();closeSheet($('dlgDates'));setup();showTab(S.tab,false);toast('Данные восстановлены');
   }catch(err){$('datesErr').textContent='Файл не похож на копию ДМБ-таймера';}
 };
-
-/* ---------- Уведомления (Web Push) ---------- */
-const VAPID_PUBLIC='BIA1L-ti_Sl1bUbnTwG4_R8TV3wbvnCKjxWsdZTG7uGKRpqHSf1AD0R-BrH-JVqrRQJfgsTvSqucBd9bi8728KA';
-const NO=()=>Object.assign({time:'09:00',before:false,daily:false},S.notif);
-const standalone=()=>navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
-const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
-function b64u(str){const pad='='.repeat((4-str.length%4)%4),b=(str+pad).replace(/-/g,'+').replace(/_/g,'/'),r=atob(b);return Uint8Array.from(r,c=>c.charCodeAt(0));}
-function getReg(){return Promise.race([navigator.serviceWorker.ready,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Service worker не запущен. Открой приложение по https и подожди пару секунд.')),4000))]);}
-async function getSub(){try{const reg=await getReg();return await reg.pushManager.getSubscription();}catch(e){return null;}}
-
-let cfgTxt='';
-async function buildConfig(){
-  const sub=await getSub();if(!sub)return '';
-  const o=NO(),today=new Date(),items=[];
-  const short=t=>{t=(t||'').trim();return t.length>120?t.slice(0,117).replace(/\s+\S*$/,'')+'…':t;};
-  MSL.forEach(m=>{
-    const diff=dayDiff(today,m.date);
-    if(diff>=0)items.push({d:K(m.date),t:m.t,b:m.kind==='mine'?'Твоё событие':short(m.desc)});
-    if(o.before&&diff>=1)items.push({d:K(addD(m.date,-1)),t:'Завтра: '+m.t,b:''});
-  });
-  return JSON.stringify({v:1,tz:Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Moscow',origin:location.origin,
-    time:o.time,daily:!!o.daily,start:S.start,end:S.end,sub:sub.toJSON(),items});
-}
-async function refreshCfg(){cfgTxt=await buildConfig();}
-
-async function renderNotif(){
-  $('nErr').textContent='';$('nTa').hidden=true;
-  const o=NO();$('nTime').value=o.time;$('nBefore').checked=!!o.before;$('nDaily').checked=!!o.daily;
-  let msg,sub=null,canEnable=false;
-  if(!pushOk()||!standalone()){
-    msg='Уведомления работают только в приложении, добавленном на экран «Домой» (iOS 16.4 и новее). Открой его оттуда, а не из Safari.';
-  }else if(Notification.permission==='denied'){
-    msg='Уведомления запрещены. Разреши их: Настройки iPhone → Уведомления → ДМБ.';
-  }else{
-    sub=await getSub();
-    if(sub)msg='Уведомления включены. Осталось передать настройки в GitHub, иначе сообщения приходить не будут.';
-    else{msg='Уведомления выключены.';canEnable=true;}
-  }
-  $('nStatus').textContent=msg;$('nOn').hidden=!canEnable;$('nOpts').hidden=!sub;
-  if(sub)await refreshCfg();
-}
-$('notifBtn').onclick=()=>{openSheet($('dlgNotif'));renderNotif();};
-
-$('nOn').onclick=async()=>{
-  try{
-    const perm=await Notification.requestPermission();
-    if(perm!=='granted'){await renderNotif();return;}
-    const reg=await getReg();
-    if(!(await reg.pushManager.getSubscription()))await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUBLIC)});
-    toast('Уведомления включены');
-  }catch(e){$('nErr').textContent='Не получилось включить: '+((e&&e.message)||e);}
-  await renderNotif();
-};
-$('nOff').onclick=async()=>{
-  try{const s=await getSub();if(s)await s.unsubscribe();cfgTxt='';toast('Уведомления отключены');}
-  catch(e){$('nErr').textContent='Не получилось отключить: '+((e&&e.message)||e);}
-  await renderNotif();
-};
-$('nTest').onclick=async()=>{
-  try{const reg=await getReg();await reg.showNotification('ДМБ',{body:'Тест: так будут выглядеть уведомления',icon:'icon-192.png',tag:'dmb-test'});}
-  catch(e){$('nErr').textContent='Не получилось показать: '+((e&&e.message)||e);}
-};
-$('nCopy').onclick=()=>{
-  const txt=cfgTxt;
-  if(!txt){$('nErr').textContent='Настройки ещё не готовы. Подожди секунду и нажми снова.';return;}
-  const manual=()=>{const ta=$('nTa');ta.value=txt;ta.hidden=false;ta.focus();ta.select();
-    $('nErr').textContent='Не удалось скопировать автоматически. Выдели текст ниже, скопируй и вставь в GitHub.';};
-  if(!navigator.clipboard){manual();return;}
-  navigator.clipboard.writeText(txt).then(()=>toast('Настройки скопированы'),manual);
-};
-function saveOpts(){
-  S.notif={time:$('nTime').value||'09:00',before:$('nBefore').checked,daily:$('nDaily').checked};
-  save();refreshCfg();
-}
-['nTime','nBefore','nDaily'].forEach(id=>$(id).addEventListener('change',saveOpts));
 
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400);}
 
